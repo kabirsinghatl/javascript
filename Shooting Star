@@ -1,0 +1,36 @@
+noStroke();
+var xPos = 190;
+var yPos = 190;
+var starRadius = 100;
+var leftX = 100;
+var rightX = 100;
+var Star2 = 200;
+var Star3 = 200;
+
+draw = function() {
+    background(36, 58, 199);
+    fill(255, 242, 0);
+    ellipse(xPos, yPos,40 ,40 );
+     
+     xPos -= 5;
+     yPos += 2;
+     starRadius += 2;
+// clouds 
+    fill(255, 255, 255);
+    // left cloud
+    ellipse(leftX, 150, 126, 97);
+    ellipse(leftX+62, 150, 70, 60);
+    ellipse(leftX-62, 150, 70, 60);
+    
+    // right cloud
+    ellipse(rightX, 100, 126, 97);
+    ellipse(rightX+62, 100, 70, 60);
+    ellipse(rightX-62, 100, 70, 60);
+    leftX -= 5;   
+    rightX += 5;
+    fill(125, 12, 31);
+    ellipse(296,100,100,100) ;
+};
+
+
+
