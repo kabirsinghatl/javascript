@@ -1,0 +1,697 @@
+var bg = function(color1, color2, y, h){
+    for (var i = y; i<y+h; i++){
+        strokeWeight(1);
+        stroke(lerpColor(color(color1),color(color2),i/h));
+        line(0, i ,600, i);
+    }
+};
+var images = {
+    'image-21': function() {
+        noStroke();
+        fill(0, 0, 0);
+        quad(200, 375, 250, 375, 275, 300, 225, 300);
+        quad(209, 255, 190, 300, 390, 300, 392, 255);
+        rect(389, 261, 7, 24, 20);
+        rect(382, 249, 4, 24, 20);
+        fill(163, 163, 163);
+        rect(263, 255, 38, 16, 0, 0, 20, 20);
+        fill(36, 20, 1);
+        quad(215, 370, 235, 370, 256, 310, 236, 310);
+        noFill();
+        stroke(0, 0, 0);
+        strokeWeight(9);
+        rect(260, 292, 44, 30, 30);
+        strokeCap(SQUARE);
+        strokeWeight(6);
+        arc(293, 299, 30, 30, 101, 180);
+        strokeCap(ROUND);
+        noStroke();
+        return get(190, 249, 206, 126);
+    },
+    'image-22': function() {
+        noStroke();
+        fill(36, 34, 36);
+        quad(200, 375, 250, 375, 275, 300, 225, 300);
+        fill(36, 34, 36);
+        quad(220, 255, 195, 300, 370, 300, 370, 255);
+        rect(369, 256, 7, 24, 20);
+        rect(369, 280, 7, 18, 20);
+        rect(362, 249, 4, 24, 20);
+        triangle(303, 322, 370, 299, 302, 294);
+        fill(163, 163, 163);
+        rect(263, 255, 38, 16, 0, 0, 20, 20);
+        noFill();
+        stroke(36, 34, 36);
+        strokeWeight(9);
+        rect(260, 292, 44, 30, 30);
+        strokeCap(SQUARE);
+        strokeWeight(6);
+        arc(293, 299, 30, 30, 101, 180);
+        noStroke();
+        fill(26, 26, 26);
+        quad(208, 375, 242, 375, 267, 300, 233, 300);
+        quad(222, 259, 228, 259, 217, 276, 211, 276);
+        quad(230, 259, 236, 259, 225, 276, 219, 276);
+        quad(238, 259, 242, 259, 233, 276, 227, 276);
+        noFill();
+        stroke(36, 36, 36);
+        arc(246, 389, 107, 143, 244, 294);
+        strokeCap(ROUND);
+        return get(190, 249, 206, 126);
+    },
+    'image-23': function() {
+         noFill();
+        strokeCap(SQUARE);
+        stroke(97, 52, 18);
+        strokeWeight(32);
+        arc(288, 373, 119, 160, 180, 237);
+        stroke(199, 199, 199);
+        strokeWeight(5);
+        rect(265, 302, 30, 25, 10);
+        arc(285, 311, 20, 25, 115, 180);
+        strokeCap(ROUND);
+        noStroke();
+        fill(199, 199, 199);
+        rect(260, 274, 67, 37, 0, 0, 58, 0);
+        triangle(242, 298, 268, 319, 260, 274);
+        triangle(255, 298, 238, 275, 259, 291);
+        rect(281, 274, 130, 15, 20);
+        fill(122, 122, 122);
+        rect(269, 278, 48, 28, 5);
+        fill(199, 199, 199);
+        rect(270, 279, 46, 26, 5);
+        fill(122, 122, 122);
+        rect(293, 282, 24, 7, 43, 0, 0, 31);
+        rect(293, 294, 24, 7, 43, 0, 0, 31);
+        return get(190, 249, 221, 126);
+    },
+    'image-24': function() {
+        noStroke();
+        fill(66, 37, 2);
+        quad(222, 384, 257, 384, 244, 309, 229, 298);
+        triangle(252, 366, 240, 304, 268, 314);
+        fill(31, 31, 31);
+        beginShape();
+        vertex(266, 327);
+        vertex(228, 318);
+        vertex(216, 314);
+        vertex(216, 284);
+        vertex(240, 269);
+        vertex(312, 269);
+        vertex(320, 300);
+        vertex(307, 307);
+        vertex(276, 299);
+        endShape();
+        rect(300, 269, 162, 14, 30);
+        fill(66, 37, 2);
+        quad(311, 277, 454, 277, 437, 294, 318, 300);
+        stroke(66, 37, 2);
+        strokeWeight(5);
+        arc(255, 369, 68, 137, 170, 224);
+        noFill();
+        arc(289, 371, 68, 144, 173, 215);
+        arc(210, 331, 43, 38, -67, 36);
+        stroke(31, 31, 31);
+        strokeWeight(9);
+        rect(260, 292, 44, 30, 30);
+        strokeCap(SQUARE);
+        strokeWeight(6);
+        arc(293, 299, 30, 30, 101, 180);
+        strokeCap(ROUND);
+        noStroke();
+        return get(216, 269, 246, 115);
+    },
+    'image-25': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(117, 60, 17);
+        strokeWeight(26);
+        arc(265, 300, 172, 162, 184, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 36, 120);
+        stroke(0, 0, 0);
+        strokeWeight(3);
+        rect(228, 236, 27, 22, 30);
+        arc(245, 238, 20, 29, 105, 180);
+        noStroke();
+        fill(0, 0, 0);
+        rect(222, 209, 75, 29, 24);
+        rect(222, 215, 329, 9, 24);
+        quad(256, 239, 276, 239, 276, 250, 257, 260);
+        triangle(550, 218, 511, 215, 533, 211);
+        rect(529, 209, 20, 10, 20);
+        fill(117, 60, 17);
+        quad(221, 243, 405, 233, 407, 220, 212, 220);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(176, 295);
+        endShape();
+        fill(0, 0, 0);
+        rect(230, 210, 60, 15, 24);
+        fill(181, 181, 181);
+        rect(260, 213, 22, 7, 20);
+        fill(0, 0, 0);
+        ellipse(272, 216.5, 7, 7);
+        return get(59, 209, 492, 137);
+    },
+    'image-26': function() {
+        fill(71, 71, 71);
+        rect(458, 245, 70, 6, 30);
+        rect(443, 252, 70, 6, 30);
+        noFill();
+        strokeCap(SQUARE);
+        stroke(176, 102, 49);
+        strokeWeight(26);
+        arc(260, 300, 203, 103, 176, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 59, 123);
+        stroke(0, 0, 0);
+        strokeWeight(3);
+        rect(224, 260, 27, 22, 30);
+        arc(245, 263, 20, 29, 105, 180);
+        noStroke();
+        fill(176, 102, 49);
+        quad(211, 268, 356, 261, 356, 245, 203, 244);
+        rect(356, 245, 113, 16);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(156, 301);
+        endShape();
+        fill(0, 0, 0);
+        quad(251, 266, 293, 264, 292, 244, 251, 244);
+        rect(210, 238, 82, 9, 24);
+        fill(71, 71, 71);
+        rect(356, 245, 5, 16, 2);
+        rect(467, 245, 8, 16, 2);
+        rect(469, 238, 5, 16, 2);
+        rect(254, 238, 33, 7, 0, 0, 30, 30);
+        rect(201, 238, 14, 10, 30);
+        ellipse(210, 236, 8, 8);
+        return get(59, 232, 469, 114);
+    },
+    'image-27': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(0, 0, 0);
+        strokeWeight(26);
+        arc(265, 300, 172, 162, 184, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 36, 120);
+        stroke(186, 186, 186);
+        strokeWeight(3);
+        rect(228, 236, 27, 22, 30);
+        arc(245, 238, 20, 29, 105, 180);
+        stroke(20, 20, 20);
+        strokeWeight(10);
+        arc(265, 300, 172, 162, 193, 233);
+        noStroke();
+        fill(186, 186, 186);
+        rect(222, 212, 75, 29, 24);
+        rect(222, 215, 329, 9, 24);
+        triangle(550, 218, 511, 215, 533, 211);
+        rect(529, 209, 20, 10, 20);
+        fill(0, 0, 0);
+        quad(221, 243, 455, 233, 460, 220, 212, 220);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(165, 295);
+        endShape();
+        fill(20, 20, 20);
+        quad(314, 235, 413, 229, 411, 223, 302, 223);
+        fill(186, 186, 186);
+        rect(227, 216, 4, 14, 24);
+        rect(311, 211, 3, 6, 24);
+        ellipse(229, 230, 7, 7);
+        return get(59, 209, 492, 137);
+    },
+    'image-28': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        rect(281, 296, 27, 22, 30);
+        arc(299, 297, 20, 29, 105, 180);
+        strokeWeight(30);
+        arc(380, 300, 100, 130, 113, 180);
+        noStroke();
+        fill(0, 0, 0);
+        beginShape();
+        vertex(255, 300);
+        vertex(255, 280);
+        vertex(263, 270);
+        vertex(380, 270);
+        vertex(380, 300);
+        endShape();
+        rect(418, 275, 56, 8, 30);
+        rect(418, 285, 103, 6, 30);
+        rect(517, 284, 36, 8, 30);
+        rect(433, 281, 10, 8, 30);
+        rect(453, 281, 10, 8, 30);
+        triangle(520, 288, 520, 265, 509, 288);
+        fill(112, 59, 24);
+        quad(260, 300, 280, 300, 270, 353, 250, 353);
+        rect(273, 300, 12, 10);
+        rect(378, 270, 47, 13, 30, 30, 0, 0);
+        rect(365, 283, 60, 17, 0, 0, 30, 30);
+        beginShape();
+        vertex(255, 300);
+        vertex(255, 280);
+        vertex(246, 280);
+        vertex(240, 285);
+        vertex(225, 280);
+        vertex(138, 280);
+        vertex(131, 329);
+        vertex(239, 311);
+        endShape();
+        fill(189, 189, 189);
+        rect(315, 280, 35, 9, 30);
+        return get(130, 265, 429, 108);
+    },
+    'image-29': function() {
+        //Blast!
+        return get(130, 265, 429, 108);
+    },
+    'image-30': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(50, 100, 400, 63);
+        quad(73, 150, 197, 200, 450, 200, 450, 150);
+        rect(250, 200, 100, 165, 0, 0, 0, 35);
+        arc(75, 100, 50, 50, 180, 360);
+        quad(450, 101, 450, 75, 434, 75, 414.5, 93);
+        triangle(450, 100, 415, 92, 415, 100);
+        rect(450, 118, 15, 75, 0, 60, 60, 0);
+        rect(459, 123, 15, 65, 0, 60, 60, 0);
+        rect(466, 141, 46, 24, 3);
+        fill(20, 20, 20);
+        rect(140, 118, 262, 10, 30);
+        rect(140, 138, 262, 10, 30);
+        rect(260, 236, 79, 5, 30);
+        rect(260, 246, 79, 5, 30);
+        rect(260, 256, 74, 5, 30);
+        rect(260, 266, 74, 5, 30);
+        rect(260, 276, 69, 5, 30);
+        rect(260, 286, 69, 5, 30);
+        rect(260, 296, 64, 5, 30);
+        rect(260, 306, 59, 5, 30);
+        rect(260, 316, 59, 5, 30);
+        rect(284, 365, 60, 100);
+        fill(15, 15, 15);
+        rect(281, 464, 66, 3);
+        noFill();
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        strokeCap(SQUARE);
+        arc(395, 200, 60, 70, 122, 180);
+        strokeCap(ROUND);
+        strokeWeight(4);
+        rect(340, 195, 60, 50, 10);
+        return get(50, 75, 463, 392);
+    },
+    'image-31': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(5, 200, 13, 79, 30);
+        rect(5, 200, 108, 20, 30);
+        quad(16, 278, 6, 265, 89, 216, 112, 216);
+        rect(81, 200, 38, 29, 30);
+        rect(112, 202, 26, 20);
+        rect(136, 200, 9, 26, 30);
+        rect(143, 195, 109, 46, 6);
+        triangle(125, 311, 157, 258, 138, 269);
+        quad(124, 311, 152, 321, 176, 267, 158, 255);
+        ellipse(160, 285, 20, 20);
+        ellipse(153, 301, 20, 20);
+        rect(166, 267, 40, 3);
+        quad(205, 270, 252, 257, 252, 233, 205, 233);
+        quad(173, 270, 158, 256, 148, 233, 173, 233);
+        rect(173, 241, 32, 10);
+        rect(246, 195, 250, 30, 5);
+        triangle(251, 225, 259, 225, 251, 249);
+        for(var i = 180; i<487; i+=8) {
+            rect(i, 193, 5, 4, 2);
+        }
+        rect(488, 206, 46, 10, 5);
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        noFill();
+        arc(143, 261, 27, 46, -65, -9);
+        arc(161, 328, 75, 142, 197, 260);
+        arc(178, 259, 15, 20, 119, 270);
+        arc(197, 259, 15, 20, -90, 51);
+        strokeWeight(4);
+        stroke(20, 20, 20);
+        for(var i = 272; i<492; i+=17) {
+            line(i, 204, i+5, 206);
+            line(i, 211, i+8, 211);
+            line(i, 218, i+5, 216);
+        }
+        strokeCap(SQUARE);
+        arc(196, 251, 30, 40, 133, 180);
+        stroke(20, 20, 20);
+        strokeWeight(40);
+        arc(378, 225, 300, 300, 142, 166);
+        strokeCap(ROUND);
+        return get(5, 192, 529, 140);
+    },
+    'image-32': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(5, 200, 13, 79, 30);
+        rect(5, 200, 108, 20, 30);
+        triangle(119, 214, 11, 213, 17, 276);
+        rect(81, 200, 38, 29, 30);
+        rect(112, 202, 26, 20);
+        rect(136, 200, 9, 26, 30);
+        rect(143, 195, 109, 46, 6);
+        triangle(125, 311, 157, 258, 138, 269);
+        quad(124, 311, 152, 321, 176, 267, 158, 255);
+        ellipse(160, 285, 20, 20);
+        ellipse(153, 301, 20, 20);
+        rect(166, 267, 40, 3);
+        quad(205, 270, 252, 257, 252, 233, 205, 233);
+        quad(173, 270, 158, 256, 148, 233, 173, 233);
+        rect(173, 241, 32, 10);
+        rect(246, 195, 20, 25, 5);
+        triangle(224, 216, 261, 219, 247, 249);
+        quad(266, 192, 266, 225, 352, 222, 352, 195);
+        rect(348, 203, 139, 10, 4);
+        for(var i = 151; i<257; i+=8) {
+            rect(i, 193, 5, 4, 2);
+        }
+        rect(158, 187, 20, 8, 3);
+        rect(160, 169, 4, 23, 3);
+        rect(374, 175, 5, 29, 5);
+        quad(375, 175, 352, 203, 359, 203, 375, 183);
+        fill(20, 20, 20);
+        for(var i = 270; i<347; i+=7) {
+            rect(i, 195, 2, 11, 1);
+            rect(i, 211, 2, 11, 1);
+        }
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        noFill();
+        arc(143, 261, 27, 46, -65, -9);
+        arc(161, 328, 75, 142, 197, 260);
+        arc(178, 259, 15, 20, 119, 270);
+        arc(197, 259, 15, 20, -90, 51);
+        strokeWeight(4);
+        strokeCap(SQUARE);
+        arc(196, 251, 30, 40, 133, 180);
+        stroke(20, 20, 20);
+        strokeWeight(40);
+        arc(378, 225, 300, 300, 142, 166);
+        strokeCap(ROUND);
+        return get(5, 169, 482, 163);
+    },
+    'image-33': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(5, 200, 13, 79, 30);
+        rect(5, 200, 108, 20, 30);
+        quad(16, 278, 6, 265, 89, 216, 112, 216);
+        rect(81, 200, 38, 29, 30);
+        rect(112, 202, 26, 20);
+        rect(136, 200, 9, 26, 30);
+        rect(143, 195, 109, 46, 6);
+        triangle(125, 311, 157, 258, 138, 269);
+        quad(124, 311, 152, 321, 176, 267, 158, 255);
+        ellipse(160, 285, 20, 20);
+        ellipse(153, 301, 20, 20);
+        rect(166, 267, 40, 3);
+        quad(205, 270, 252, 270, 252, 233, 205, 233);
+        quad(173, 270, 158, 256, 148, 233, 173, 233);
+        rect(173, 241, 32, 10);
+        rect(246, 195, 119, 30, 5);
+        triangle(251, 225, 259, 225, 251, 249);
+        for(var i = 180; i<358; i+=8) {
+            rect(i, 193, 5, 4, 2);
+        }
+        for(var i = 261; i<358; i+=8) {
+            rect(i, 224, 5, 4, 2);
+        }
+        rect(300, 224, 30, 10, 2);
+        rect(303, 228, 24, 60, 6);
+        rect(302, 287, 26, 10, 2);
+        rect(358, 206, 85, 10, 5);
+        arc(163, 196, 30, 30, 180, 360);
+        rect(377, 181, 8, 30, 3);
+        ellipse(381, 186, 10, 12);
+        fill(24, 46, 24);
+        rect(208, 270, 41, 64, 2);
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        noFill();
+        arc(143, 261, 27, 46, -65, -9);
+        arc(161, 328, 75, 142, 197, 260);
+        arc(178, 259, 15, 20, 119, 270);
+        arc(197, 259, 15, 20, -90, 51);
+        strokeWeight(4);
+        stroke(51, 51, 51);
+        for(var i = 264; i<362; i+=17) {
+            line(i, 204, i+5, 204);
+            line(i, 211, i+8, 211);
+            line(i, 218, i+5, 218);
+        }
+        strokeCap(SQUARE);
+        stroke(0, 0, 0);
+        arc(196, 251, 30, 40, 133, 180);
+        strokeCap(ROUND);
+        return get(5, 180, 438, 154);
+    },
+    'image-34': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(47, 77, 47);
+        strokeWeight(26);
+        arc(265, 300, 172, 162, 184, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 36, 120);
+        stroke(0, 0, 0);
+        strokeWeight(3);
+        rect(228, 236, 27, 22, 30);
+        arc(245, 238, 20, 29, 105, 180);
+        noStroke();
+        fill(186, 186, 186);
+        rect(222, 214, 75, 22, 24);
+        fill(0, 0, 0);
+        rect(259, 215, 329, 9, 24);
+        rect(269, 207, 5, 10);
+        rect(296, 207, 5, 10);
+        rect(257, 195, 70, 12, 5);
+        quad(254, 266, 305, 255, 305, 238, 254, 240);
+        triangle(240, 193, 240, 211, 305, 200);
+        triangle(354, 188, 354, 214, 282, 200);
+        fill(47, 77, 47);
+        quad(221, 243, 455, 233, 460, 220, 212, 220);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(165, 295);
+        endShape();
+        fill(186, 186, 186);
+        rect(227, 216, 4, 14, 24);
+        ellipse(229, 230, 7, 7);    
+        return get(59, 188, 529, 158);
+    },
+    'image-35': function() {
+        bg(color(222, 115, 0), color(0, 0, 0), 0, 190);
+        bg(color(222, 115, 0), color(0, 0, 0), 500, 110);
+        return get(0, 0, 600, 600);
+    },
+    'image-36': function() {
+        strokeCap(ROUND);
+        noStroke();
+        fill(186, 91, 7);
+        arc(50, 100, 95, 200, 180, 360);
+        fill(214, 184, 17);
+        beginShape();
+        vertex(0, 100);
+        vertex(0, 300);
+        vertex(8, 312);
+        vertex(92, 312);
+        vertex(100, 300);
+        vertex(100, 100);
+        endShape();
+        ellipse(50, 316, 100, 29);
+        fill(255, 255, 255, 100);
+        beginShape();
+        vertex(12, 100);
+        vertex(12, 307);
+        vertex(7, 325);
+        vertex(30, 329);
+        vertex(35, 313);
+        vertex(35, 100);
+        endShape();
+        noFill();
+        stroke(255, 255, 255, 100);
+        strokeWeight(23);
+        arc(71, 100, 95, 202, 189, 222);
+        noFill();
+        stroke(173, 144, 28);
+        strokeWeight(2);
+        arc(50, 300, 100, 29, 29, 147);
+        return get(0, 0, 100, 330);
+    },
+};
+var xPositions = [];
+var yPositions = [];
+var rPositions = [];
+var gType = [];
+for(var i = 0; i<45; i++) {
+    xPositions[i] = random(0, 600);
+    yPositions[i] = random(-600, 0);
+    rPositions[i] = random(0, 360);
+    gType[i] = floor(random(0, 5));
+}
+draw = function() {
+    var imageKeys = Object.keys(images);
+    for (var i = 0; i < imageKeys.length; i++) {
+        var key = imageKeys[i];
+        var img = images[key];
+        if (typeof img === 'function') {
+            background(0, 0, 0, 0);
+            images[key] = img();
+        }
+    }
+    background(255, 255, 255, 0);
+    image(images['image-35'], 0, 0, 600, 600);
+    var title = get(0, 0, 600, 600);
+    fill(255, 255, 255, 255);
+    textFont(createFont("Impact"), 119);
+    textAlign(CENTER);
+    text("INFECTED", 300, 138);
+    textFont(createFont("mononspace"), 45);
+    text("Defending the Breach", 300, 179);
+    text("Coming April 20th", 300, 579);
+    var titlemask = get(0, 0, 600, 600);
+    title.mask(titlemask);
+    noStroke();
+    background(156, 156, 156);
+    fill(92, 92, 92);
+    for(var i = 0; i<700; i+=50) {
+        for(var j = 1; j<700; j+=50){
+            ellipse(i, j, 10, 10);
+        }
+    }
+    image(title, 0, 0);
+    image(images['image-36'], 265, 224, 70, 224);
+    pushMatrix();
+    translate(280, 450);
+    rotate(-55);
+    image(images['image-25'], 0, 0, 300, 74);
+    popMatrix();
+    pushMatrix();
+    translate(320, 450);
+    scale(-1, 1);
+    rotate(-55);
+    image(images['image-26'], 0, 0, 290, 74);
+    popMatrix();
+    pushMatrix();
+    translate(280, 450);
+    rotate(-45);
+    image(images['image-27'], 0, 0, 310, 74);
+    popMatrix();
+    pushMatrix();
+    translate(320, 450);
+    scale(-1, 1);
+    rotate(-45);
+    image(images['image-28'], 0, 0, 319, 80);
+    popMatrix();
+    pushMatrix();
+    translate(280, 450);
+    rotate(-35);
+    image(images['image-32'], 0, 0, 275, 91);
+    popMatrix();
+    pushMatrix();
+    translate(320, 450);
+    scale(-1, 1);
+    rotate(-35);
+    image(images['image-31'], 0, 0, 310, 80);
+    popMatrix();
+    pushMatrix();
+    translate(280, 450);
+    rotate(-15);
+    image(images['image-33'], 0, 0, 260, 80);
+    popMatrix();
+    pushMatrix();
+    translate(320, 420);
+    scale(-1, 1);
+    rotate(-15);
+    image(images['image-34'], 0, 0, 320, 80);
+    fill(255, 0, 0);
+    popMatrix();
+    textFont(createFont("Stencil"), 30);
+    pushMatrix();
+    translate(543, 169);
+    rotate(37);
+    text("V 2.0", 0, 0);
+    popMatrix();
+    fill(0, 0, 0);
+    popMatrix();
+    pushMatrix();
+    translate(543, 169);
+    rotate(37);
+    text("V 2.0", 0, 0);
+    popMatrix();
+    for(var i = 0; i<40; i++) {
+        pushMatrix();
+        translate(xPositions[i], yPositions[i]);
+        rotate(rPositions[i]);
+        image(images['image-36'], 0, -16 , 10, 32);
+        popMatrix();
+        yPositions[i]+=10;
+        rPositions[i]+=5;
+        if(yPositions[i]>610){
+            xPositions[i] = random(0, 600);
+            yPositions[i] = -50;
+            rPositions[i] = random(0, 360);
+        }
+    }
+    imageMode(CENTER);
+    for(var i = 40; i<45; i++) {
+        pushMatrix();
+        translate(xPositions[i], yPositions[i]);
+        rotate(rPositions[i]);
+        if(gType[i]===0) {
+            image(images['image-30'], 0, -16 , 100, 72);
+        }
+        if(gType[i]===1) {
+            image(images['image-21'], 0, -16 , 100, 59);
+        }
+        if(gType[i]===2) {
+            image(images['image-22'], 0, -16 , 100, 59);
+        }
+        if(gType[i]===3) {
+            image(images['image-23'], 0, -16 , 130, 66);
+        }
+        if(gType[i]===4) {
+            image(images['image-24'], 0, -16 , 130, 66);
+        }
+        popMatrix();
+        yPositions[i]+=10;
+        rPositions[i]+=5;
+        if(yPositions[i]>700){
+            xPositions[i] = random(0, 600);
+            yPositions[i] = random(-400, -100);
+            rPositions[i] = random(0, 360);
+            gType[i] = floor(random(0, 5));
+        }
+    }
+    imageMode(CORNER);
+};
