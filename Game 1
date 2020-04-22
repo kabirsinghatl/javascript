@@ -1,0 +1,3366 @@
+// If the text goes off the screen switch this to false
+var has_font = true;
+//Place new save code here
+var Save_Code = [1, 6, 0, 140, 6, 0, 0, false, false, true, false, false, false, false, false, false, false, false, false, false, false, 0, 0, 0, 1, 50, false, 0, 0, 0, false, false, 0, 0, 0, 0];
+// If you subscribe turn this varible to the secret code to get a special in game ability
+var Subscriber = false;
+var hash = function(a) {
+    return a%10+a%23+a%59;
+};
+/** Instructions
+ * click to shoot at the zombies
+ * right click to use a First Aid Kit this will give you 50 more helth you can not have more than a hundred health
+ * Red first aid kits must be manually used Green first aid kits automatically are used when your health reaches 20 or lower
+ * earn money by killing zombies to buy guns, crates, and First Aid Kits, and soldiers
+ */
+ /* Daily Bonus
+ Sunday - First Aid Kit replenishes all health
+ Monday - Extra 50 health
+ Tuesday - Double Money
+ Wedsnday - Handguns deal double damage
+ Thursday - Rifles deal double damage
+ Friday - All crates %50 off
+ Satuday - First Aid Kits are %50 off
+ */
+ /**
+  If the daily bonus does not work/appear that is because it still belives it is the day in which the tab was opened. Copy your save code and reload the page.
+*/
+/* Updates in V2
+zombies do not turn into a pile of blood when they die
+more guns!
+better gun graphics and their are designed to look like the real world equivilant
+you can now purchase soldiers!
+market updated to look way nicer
+machine guns go full auto!
+game MODS added!
+zombies "bleed"
+headshots automatically kill!
+automatic first aid kits added
+and updated graphics!
+*/
+var monthCodes = [null, 6, 2, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+var yearCode = function(y) {
+    if (!y) {
+        y = year();
+    }
+    // Our calendar repeats every 400 years.
+    var mod = (round(y / 100) % 4);
+    var modifiers = [0, 5, 3, 1];
+    var yy = y % 100;
+    var yearCode = floor(yy / 4) + yy;
+    return yearCode + modifiers[mod];
+};
+var dayOfWeek = function(m, d, y) {
+    // If no parameters passed, get current date
+    if (!m) {m = month();} if (!d) {d = day();}
+    if (!y) {y = year();}
+    if (m > 12) {
+        m = (m - 1) % 12 + 1;// puts m in range [1, 12]
+    }
+    return (monthCodes[m] + d + yearCode(y)) % 7;
+};
+var bonus = dayOfWeek();
+//Credit to The #1 Base 12 Proponent for the code above
+var bg = function(color1, color2){
+    for (var i = 0; i<height; i++){
+        strokeWeight(1);
+        stroke(lerpColor(color(color1),color(color2),i/600));
+        line(0, i*1 ,600, i);
+    }
+};
+var zombiehead = [
+    [0,0,1,1,2,2,0,0],
+    [0,1,2,2,1,2,2,0],
+    [2,1,2,1,1,2,1,2],
+    [6,5,6,1,1,2,2,1],
+    [8,7,5,4,1,2,1,2],
+    [4,6,3,5,5,3,5,6],
+    [4,4,4,5,3,4,4,5],
+    [3,4,3,3,3,4,3,3],
+];
+var zombiearm = [
+    [1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [1,4,1,1,0,0,0,0,0,0,0,0,0],
+    [2,2,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,4,2,0,0,0,0,0,0,0,0,0],
+    [1,4,4,1,0,0,0,0,0,0,0,0,0],
+    [4,4,4,3,0,0,0,0,0,0,0,0,0],
+    [4,4,4,3,0,0,0,0,0,0,0,0,0],
+    [3,4,4,3,0,0,0,0,0,0,0,0,0],
+    [3,4,4,4,0,0,0,0,0,0,0,0,0],
+    [3,4,3,4,0,0,0,0,0,0,0,0,0],
+    [4,4,3,4,0,0,0,0,0,0,0,0,0],
+    [4,4,3,4,0,0,0,0,0,0,0,0,0],
+    [4,4,4,4,0,0,0,0,0,0,0,0,0],
+];
+var zombieleg = [
+    [1,1,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,2,1,0,0,0,0,0,0,0,0,0],
+    [1,3,1,1,0,0,0,0,0,0,0,0,0],
+    [1,3,1,2,0,0,0,0,0,0,0,0,0],
+    [1,2,1,2,0,0,0,0,0,0,0,0,0],
+    [1,2,1,2,0,0,0,0,0,0,0,0,0],
+    [1,2,3,1,0,0,0,0,0,0,0,0,0],
+    [1,2,3,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [2,1,1,1,0,0,0,0,0,0,0,0,0],
+    [2,1,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+];
+var generalhead=[
+    [0,0,1,1,2,2,0,0],
+    [0,1,2,2,1,2,2,0],
+    [2,1,2,1,1,2,1,2],
+    [6,5,6,1,1,2,2,1],
+    [8,7,5,4,1,2,1,2],
+    [4,6,3,5,2,2,2,1],
+    [9,10,4,5,1,2,1,2],
+    [3,4,3,3,3,4,3,3],
+];
+var hillHead = [
+    [0,0,2,2,1,1,0,0],
+    [0,2,2,1,2,2,1,0],
+    [2,1,2,1,1,2,1,2],
+    [1,2,2,1,1,6,5,6],
+    [2,1,2,1,4,5,7,8],
+    [1,2,2,2,5,3,6,4],
+    [2,1,2,1,5,4,5,4],
+    [3,4,3,3,3,4,3,3],
+];
+var ZHC = [
+    color(255, 255, 255, 0),
+    color(41, 41, 41),
+    color(33, 33, 33),
+    color(0, 99, 13),
+    color(8, 107, 1),
+    color(1, 94, 3),
+    color(2, 105, 12),
+    color(255, 255, 255),
+    color(140, 0, 0),
+];
+var ZAC = [
+    color(255, 255, 255, 255),
+    color(99, 99, 99),
+    color(89, 89, 89),
+    color(1, 87, 25),
+    color(0, 105, 39),
+];
+var ZLC = [
+    color(255, 0, 0, 0),
+    color(82, 57, 0),
+    color(71, 39, 0),
+    color(0, 99, 17),
+];
+var GHC = [
+    color(255, 255, 255, 0),
+    color(5, 56, 7),
+    color(16, 56, 30),
+    color(209, 161, 111),
+    color(250, 196, 110),
+    color(224, 171, 105),
+    color(237, 192, 128),
+    color(255, 255, 255),
+    color(94, 67, 0),
+    color(66, 40, 0),
+    color(82, 55, 15),
+];
+var GAC = [
+    color(255, 255, 255, 255),
+    color(10, 59, 10),
+    color(21, 71, 16),
+    color(173, 125, 62),
+    color(194, 146, 84),
+];
+var GLC = [
+    color(255, 0, 0, 0),
+    color(13, 71, 15),
+    color(18, 61, 23),
+    color(0, 0, 0),
+    color(19, 77, 16),
+];
+var displayzombiehead = function(){
+    noStroke();
+    for(var i in zombiehead){
+        for(var j in zombiehead[i]){
+            fill(ZHC[zombiehead[j][i]]);
+            rect(i*10, j*10, 10, 10);
+        }
+    }
+};
+var displayzombiearm = function(){
+    noStroke();
+    for(var i in zombiearm){
+        for(var j in zombiearm[i]){
+            fill(ZAC[zombiearm[j][i]]);
+            rect(i*10, j*10, 10, 10);
+        }
+    }
+};
+var displayzombieleg = function(){
+    noStroke();
+    for(var i in zombieleg){
+        for(var j in zombieleg[i]){
+            fill(ZLC[zombieleg[j][i]]);
+            rect(i*10, j*10, 10, 10);
+        }
+    }
+};
+var playerhead = [
+    [0,0,1,1,2,1,0,0],
+    [0,1,2,2,1,2,2,0],
+    [0,1,2,1,1,2,1,2],
+    [1,2,1,1,1,6,5,6],
+    [2,1,2,1,4,5,8,9],
+    [1,1,1,4,5,4,5,1],
+    [1,2,1,3,4,4,1,1],
+    [2,1,1,2,2,1,2,2],
+];
+var playerarm = [
+    [1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [1,1,1,1,0,0,0,0,0,0,0,0,0],
+    [2,2,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,2,1,0,0,0,0,0,0,0,0,0],
+    [2,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,1,2,1,0,0,0,0,0,0,0,0,0],
+    [1,1,2,2,0,0,0,0,0,0,0,0,0],
+    [1,1,1,2,0,0,0,0,0,0,0,0,0],
+    [4,4,3,4,0,0,0,0,0,0,0,0,0],
+    [4,4,3,4,0,0,0,0,0,0,0,0,0],
+    [4,4,4,4,0,0,0,0,0,0,0,0,0],
+    ];
+var playerleg = [
+    [1,1,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [1,2,1,1,0,0,0,0,0,0,0,0,0],
+    [3,3,1,1,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+];
+var PHC = [
+    color(255, 0, 255, 0),
+    color(0, 0, 0),
+    color(20, 20, 20),
+    color(163, 117, 54),
+    color(173, 125, 62),
+    color(194, 146, 84),
+    color(201, 153, 91),
+    color(214, 170, 112),
+    color(255, 255, 255),
+    color(16, 90, 181),
+];
+var PAC = [
+    color(255, 255, 255, 255),
+    color(0, 0, 0),
+    color(20, 20, 20),
+    color(173, 125, 62),
+    color(194, 146, 84),
+];
+var PLC = [
+    color(255, 0, 0, 0),
+    color(33, 33, 33),
+    color(18, 18, 18),
+    color(0, 0, 0),
+];
+var generalleg = [
+    [4,1,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,2,4,0,0,0,0,0,0,0,0,0],
+    [4,2,1,4,0,0,0,0,0,0,0,0,0],
+    [1,1,2,1,0,0,0,0,0,0,0,0,0],
+    [4,2,4,2,0,0,0,0,0,0,0,0,0],
+    [1,4,1,4,0,0,0,0,0,0,0,0,0],
+    [4,2,4,1,0,0,0,0,0,0,0,0,0],
+    [1,4,1,2,0,0,0,0,0,0,0,0,0],
+    [2,2,4,1,0,0,0,0,0,0,0,0,0],
+    [1,4,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+];
+var hillLeg = [
+    [4,1,2,1,0,0,0,0,0,0,0,0,0],
+    [1,2,2,4,0,0,0,0,0,0,0,0,0],
+    [4,2,1,4,0,0,0,0,0,0,0,0,0],
+    [1,1,2,1,0,0,0,0,0,0,0,0,0],
+    [4,2,4,2,0,0,0,0,0,0,0,0,0],
+    [1,4,1,4,0,0,0,0,0,0,0,0,0],
+    [4,2,4,1,0,0,0,0,0,0,0,0,0],
+    [1,4,1,2,0,0,0,0,0,0,0,0,0],
+    [2,2,4,1,0,0,0,0,0,0,0,0,0],
+    [3,3,1,4,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+    [3,3,3,3,0,0,0,0,0,0,0,0,0],
+];
+var soldierhead = [
+    [0,0,1,1,2,1,0,0],
+    [0,1,2,2,1,2,2,0],
+    [2,1,2,1,1,2,1,2],
+    [1,2,1,2,1,2,2,1],
+    [2,1,2,1,2,1,2,2],
+    [1,1,1,2,1,1,1,1],
+    [1,2,1,2,2,2,1,1],
+    [2,1,1,2,2,1,2,2],
+];
+var displayplayerhead = function(){
+    noStroke();
+        for(var i in playerhead){
+            for(var j in playerhead[i]){
+                fill(PHC[playerhead[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displayplayerarm = function(){
+        for(var i in playerarm){
+            for(var j in playerarm[i]){
+                fill(PAC[playerarm[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displayplayerleg = function(){
+        for(var i in playerleg){
+            for(var j in playerleg[i]){
+                fill(PLC[playerleg[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displaygeneralhead = function(){
+    noStroke();
+        for(var i in generalhead){
+            for(var j in generalhead[i]){
+                fill(GHC[generalhead[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displaygeneralarm = function(){
+        for(var i in playerarm){
+            for(var j in playerarm[i]){
+                fill(GAC[playerarm[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displaygeneralleg = function(){
+        for(var i in generalleg){
+            for(var j in generalleg[i]){
+                fill(GLC[generalleg[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displaysoldierhead = function(){
+    noStroke();
+        for(var i in soldierhead){
+            for(var j in soldierhead[i]){
+                fill(PHC[soldierhead[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displayhillHead = function() {
+    noStroke();
+        for(var i in hillHead){
+            for(var j in hillHead[i]){
+                fill(GHC[hillHead[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var displayhillLeg = function(){
+        for(var i in hillLeg){
+            for(var j in hillLeg[i]){
+                fill(GLC[hillLeg[j][i]]);
+                rect(i*10, j*10, 10, 10);
+            }
+        }
+};
+var images = {
+    'image-1': function() {
+        bg(color(156, 99, 0), color(212, 106, 0));
+        noStroke();
+        fill(254, 255, 232,1);
+        noStroke();
+        for(var i = 300; i<310; i+=1){
+            ellipse(200, 300, i, i);
+        }
+        fill(254, 255, 232);
+        ellipse(200, 300, 200, 200);
+        fill(117, 117, 117);
+        rect(0, 400, 600, 200);
+        rect(0, 275, 180, 125);
+        rect(40, 253, 60, 33);
+        rect(126, 265, 40, 10);
+        rect(145, 255, 21, 10);
+        rect(155, 225, 1, 31);
+        rect(180, 324, 15, 79);
+        rect(195, 381, 8, 27);
+        rect(205, 286, 123, 115);
+        rect(230, 270, 50, 16);
+        rect(238, 261, 34, 9);
+        rect(244, 255, 23, 6);
+        triangle(244, 257, 256, 243, 267, 256);
+        rect(291, 230, 37, 58);
+        rect(328, 334, 14, 69);
+        rect(341, 351, 17, 50);
+        rect(358, 341, 7, 59);
+        rect(363, 302, 27, 100);
+        rect(385, 375, 12, 26);
+        rect(405, 203, 60, 200);
+        for(var i = 203; i<390; i+=6){
+            rect(402, i, 3, 3);
+        }
+        rect(410, 188, 50, 17);
+        rect(415, 173, 40, 15);
+        rect(420, 165, 30, 8);
+        rect(428, 158, 10, 7);
+        rect(432, 127, 1, 33);
+        rect(465, 327, 9, 78);
+        fill(107, 107, 107);
+        rect(0, 400, 17, 53);
+        rect(17, 320, 80, 133);
+        rect(17, 317, 17, 4);
+        rect(49, 317, 17, 4);
+        rect(99, 407, 23, 46);
+        rect(122, 330, 77, 123);
+        rect(131, 327, 42, 3);
+        rect(209, 425, 9, 28);
+        rect(218, 354, 102, 99);
+        rect(226, 343, 34, 14);
+        rect(243, 329, 17, 14);
+        rect(276, 334, 30, 21);
+        rect(278, 331, 26, 3);
+        rect(280, 328, 22, 3);
+        rect(284, 319, 14, 11);
+        rect(291, 294, 2, 36);
+        rect(320, 431, 14, 22);
+        rect(334, 312, 62, 142);
+        rect(338, 264, 54, 50);
+        rect(342, 240, 46, 25);
+        triangle(365, 220, 342, 240, 387, 240);
+        rect(365, 192, 1, 30);
+        rect(396, 400, 61, 54);
+        rect(396, 395, 10, 5);
+        rect(422, 395, 20, 5);
+        fill(112, 112, 112);
+        ellipse(random(0, 600), random(460, 600), 30, 10);
+        ellipse(random(0, 600), random(460, 600), 20, 8);
+        ellipse(random(0, 600), random(460, 600), 25, 9);
+        ellipse(random(0, 600), random(460, 600), 15, 7);
+        ellipse(random(0, 600), random(460, 600), 30, 10);
+        ellipse(random(0, 600), random(460, 600), 20, 8);
+        ellipse(random(0, 600), random(460, 600), 25, 9);
+        ellipse(random(0, 600), random(460, 600), 15, 7);
+        fill(110, 110, 110);
+        ellipse(random(0, 600), random(460, 600), 30, 10);
+        ellipse(random(0, 600), random(460, 600), 20, 8);
+        ellipse(random(0, 600), random(460, 600), 25, 9);
+        ellipse(random(0, 600), random(460, 600), 15, 7);
+        fill(111, 111, 111);
+        ellipse(random(0, 600), random(460, 600), 30, 10);
+        ellipse(random(0, 600), random(460, 600), 20, 8);
+        ellipse(random(0, 600), random(460, 600), 25, 9);
+        ellipse(random(0, 600), random(460, 600), 15, 7);
+        fill(191, 191, 191);
+        triangle(540, 425, 474, 357, 545, 422);
+        triangle(525, 425, 474, 361, 527, 421);
+        triangle(521, 434, 474, 365, 520, 428);
+        triangle(516, 440, 474, 369, 513, 431);
+        triangle(510, 443, 474, 373, 508, 433);
+        triangle(501, 433, 474, 377, 501, 437);
+        triangle(500, 444, 474, 381, 505, 450);
+        fill(125, 125, 125);
+        rect(475, 358, 3, 43);
+        rect(485, 368, 4, 53);
+        rect(500, 382, 5, 77);
+        fill(255, 0, 0, 5);
+        for(var i = 0; i<28; i++){
+            ellipse(502, 384, i, i);
+        }
+        for(var i = 0; i<18; i++){
+            ellipse(487, 368, i, i);
+        }
+        fill(255, 0, 0, 18);
+        for(var i = 0; i<8; i++){
+            ellipse(476, 359, i, i);
+        }
+        fill(255, 56, 56, 195);
+        ellipse(503, 384, 5, 5);
+        ellipse(487, 368, 3, 3);
+        fill(212, 198, 2);
+        for(var i = 0; i<600; i+=50){
+            rect(i, 500, 20, 3);
+        }
+        return get(0, 0, 600, 600);
+    },
+    'image-2': function() {
+        fill(191, 191, 191);
+        quad(540, 425, 600, 488, 600, 472, 545, 422);
+        quad(530, 431, 600, 520, 600, 504, 533, 426);
+        quad(533, 451, 600, 552, 600, 536, 533, 444);
+        quad(535, 472, 600, 584, 600, 568, 536, 466);
+        quad(540, 500, 600, 616, 600, 600, 543, 494);
+        quad(544, 529, 547, 523, 600, 632, 600, 648);
+        quad(552, 570, 557, 565, 600, 664, 600, 680);
+        fill(125, 125, 125);
+        rect(550, 438, 13, 151);
+        fill(255, 0, 0, 5);
+        for(var i = 0; i<40; i++){
+            ellipse(557, 438, i, i);
+        }
+        fill(255, 56, 56, 195);
+        ellipse(557, 438, 8, 8);
+        return get(0, 0, 600, 600);
+    },
+    'image-3': function() {
+        displayzombiehead();
+        return get(0, 0, 80, 80);
+    },
+    'image-4': function() {
+        displayzombiearm();
+        return get(0, 0, 40, 130);
+    },
+    'image-5': function() {
+        displayzombieleg();
+        return get(0, 0, 40, 130);
+    },
+    'image-6': function() {
+        fill(125, 101, 62);
+        stroke(105, 76, 21);
+        strokeWeight(10);
+        ellipse(300, 300, 590, 590);
+        return get(0, 0, 600, 600);
+    },
+    'image-7': function() {
+        displayplayerhead();
+        return get(0, 0, 80, 80);
+    },
+    'image-8': function() {
+        pushMatrix();
+        translate(0, 40);
+        rotate(-90);
+        displayplayerarm();
+        popMatrix();
+        return get(0, 0, 130, 40);
+    },
+    'image-9': function() {
+        displayplayerleg();
+        return get(0, 0, 40, 130);
+    },
+    'image-10': function() {
+        background(89, 89, 89);
+        fill(255, 255, 255, 5);
+        for(var i = 100; i<500; i+=20) {
+            ellipse(300, 300, i*2, i);
+        }
+        return get(0, 0, 600, 600);
+    },
+    'image-11': function(){
+        fill(0, 115, 255);
+        noStroke();
+        rect(0, 0, 600, 600, 150);
+        fill(255, 255, 255);
+        (rect)(100, 0, 400, 300, 0, 0, 37, 37);
+        (rect)(100, 400, 400, 200, 37, 37, 0, 0);
+        fill(0, 81, 173);
+        rect(120, 55, 360, 50, 30);
+        rect(120, 125, 360, 50, 30);
+        rect(120, 195, 360, 50, 30);
+        fill(9, 0, 255);
+        rect(150, 450, 100, 115, 30);
+        return get(0, 0, 600, 600);
+    },
+    'image-12': function(){
+        fill(247, 255, 0);
+        noStroke();
+        beginShape();
+        vertex(202, 35);
+        vertex(257, 122);
+        vertex(373, 138);
+        vertex(292, 221);
+        vertex(310, 325);
+        vertex(190, 277);
+        vertex(81, 325);
+        vertex(93, 210);
+        vertex(26, 138);
+        vertex(143, 122);
+        endShape();
+        return get(30, 34, 343, 292);
+    },
+    'image-13': function(){
+        background(150, 150, 150);
+        noStroke();
+        fill(171, 171, 171);
+        rect(0, 100, 600, 277);
+        fill(135, 4, 4);
+        for(var i = 0; i<600; i+=52){
+            for(var j = 0; j<369; j+=42){
+                fill(135, 4, 4);
+                rect(i, j, 50, 20);
+                fill(0, 0, 0, 145);
+                rect(i+48, j, 2, 20);
+                rect(i, j+18, 48, 2);
+            }
+        }
+        for(var i = -25; i<600; i+=52){
+            for(var j = 21; j<395; j+=42){
+                fill(135, 4, 4);
+                rect(i, j, 50, 20);
+                fill(0, 0, 0, 145);
+                rect(i+48, j, 2, 20);
+                rect(i, j+18, 48, 2);
+            }
+        }
+        fill(173, 173, 173);
+        rect(0, 376, 600, 114);
+        rect(0, 544, 600, 46);
+        fill(181, 175, 150);
+        rect(130, 41, 340, 335);
+        rect(0, 356, 600, 20);
+        fill(153, 147, 121);
+        rect(140, 51, 320, 325);
+        rect(0, 365, 600, 10);
+        fill(84, 47, 11);
+        rect(150, 61, 300, 315);
+        fill(77, 38, 8);
+        rect(175, 105, 100, 100);
+        rect(328, 105, 100, 100);
+        rect(175, 225, 100, 135);
+        rect(328, 225, 100, 135);
+        rect(295, 62, 10, 314);
+        fill(69, 35, 8);
+        rect(185, 115, 80, 80);
+        rect(338, 115, 80, 80);
+        rect(185, 235, 80, 115);
+        rect(338, 235, 80, 115);
+        noFill();
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        arc(315, 244, 11, 50, -73, 78);
+        arc(285, 244, 11, 50, -269, -99);
+        strokeWeight(2);
+        line(21, 77, 0, 72);
+        line(21, 77, 32, 67);
+        line(41, 69, 32, 67);
+        line(41, 69, 44, 59);
+        line(27, 60, 32, 67);
+        line(27, 60, 30, 54);
+        line(20, 46, 30, 54);
+        line(36, 46, 30, 54);
+        line(36, 46, 45, 43);
+        line(53, 33, 45, 43);
+        line(600, 300, 585, 295);
+        line(572, 300, 585, 295);
+        line(580, 285, 582, 295);
+        line(580, 285, 567, 282);
+        line(556, 274, 567, 282);
+        line(556, 274, 559, 263);
+        line(548, 253, 559, 263);
+        line(571, 258, 559, 263);
+        line(571, 258, 566, 246);
+        line(574, 240, 566, 246);
+        stroke(46, 19, 2);
+        line(250, 278, 239, 287);
+        line(248, 295, 239, 287);
+        line(248, 295, 243, 302);
+        line(248, 295, 254, 298);
+        line(255, 307, 254, 298);
+        line(255, 307, 261, 310);
+        line(266, 322, 261, 310);
+        line(237, 304, 243, 302);
+        line(237, 304, 230, 299);
+        line(237, 304, 234, 310);
+        line(237, 314, 234, 310);
+        stroke(128, 128, 128);
+        line(53, 490, 68, 480);
+        line(67, 469, 68, 480);
+        line(67, 469, 74, 460);
+        line(67, 469, 59, 465);
+        line(55, 458, 59, 465);
+        line(55, 458, 46, 454);
+        line(73, 454, 74, 460);
+        line(73, 454, 81, 447);
+        line(90, 456, 81, 447);
+        line(84, 438, 81, 447);
+        line(500, 544, 494, 554);
+        line(502, 561, 494, 554);
+        line(502, 561, 502, 572);
+        line(511, 580, 502, 572);
+        line(497, 580, 502, 572);
+        return get(0, 0, 600, 600);
+    },
+    'image-14': function() {
+        displaygeneralhead();
+        return get(0, 0, 80, 80);
+    },
+    'image-15': function() {
+        displaygeneralarm();
+        return get(0, 0, 40, 130);
+    },
+    'image-16': function() {
+        displaygeneralleg();
+        return get(0, 0, 40, 130);
+    },
+    'image-17': function() {
+        displaysoldierhead();
+        return get(0, 0, 80, 80);
+    },
+    'image-18': function() {
+        noStroke();
+        fill(255, 0, 0);
+        rect(0, 0, 400, 200);
+        fill(255, 255, 255);
+        triangle(200, 30, 275, 170, 125, 170);
+        fill(255, 0, 0);
+        ellipse(200, 100, 65, 65);
+        strokeWeight(5);
+        stroke(0, 0, 0);
+        line(185, 115, 215, 85);
+        line(185, 85, 215, 115);
+        line(225, 95, 215, 85);
+        line(185, 115, 175, 105);
+        line(225, 105, 215, 115);
+        line(185, 85, 175, 95);
+        noStroke();
+        return get(0, 0, 400, 200);
+    },
+    'image-19': function() {
+        displaygeneralleg();
+        return get(0, 0, 40, 65);
+    },
+    'image-20': function() {
+        displaygeneralleg();
+        return get(0, 65, 40, 65);
+    },
+    'image-21': function() {
+        noStroke();
+        fill(0, 0, 0);
+        quad(200, 375, 250, 375, 275, 300, 225, 300);
+        quad(209, 255, 190, 300, 390, 300, 392, 255);
+        rect(389, 261, 7, 24, 20);
+        rect(382, 249, 4, 24, 20);
+        fill(163, 163, 163);
+        rect(263, 255, 38, 16, 0, 0, 20, 20);
+        fill(36, 20, 1);
+        quad(215, 370, 235, 370, 256, 310, 236, 310);
+        noFill();
+        stroke(0, 0, 0);
+        strokeWeight(9);
+        rect(260, 292, 44, 30, 30);
+        strokeCap(SQUARE);
+        strokeWeight(6);
+        arc(293, 299, 30, 30, 101, 180);
+        strokeCap(ROUND);
+        noStroke();
+        return get(190, 249, 206, 126);
+    },
+    'image-22': function() {
+        noStroke();
+        fill(36, 34, 36);
+        quad(200, 375, 250, 375, 275, 300, 225, 300);
+        fill(36, 34, 36);
+        quad(220, 255, 195, 300, 370, 300, 370, 255);
+        rect(369, 256, 7, 24, 20);
+        rect(369, 280, 7, 18, 20);
+        rect(362, 249, 4, 24, 20);
+        triangle(303, 322, 370, 299, 302, 294);
+        fill(163, 163, 163);
+        rect(263, 255, 38, 16, 0, 0, 20, 20);
+        noFill();
+        stroke(36, 34, 36);
+        strokeWeight(9);
+        rect(260, 292, 44, 30, 30);
+        strokeCap(SQUARE);
+        strokeWeight(6);
+        arc(293, 299, 30, 30, 101, 180);
+        noStroke();
+        fill(26, 26, 26);
+        quad(208, 375, 242, 375, 267, 300, 233, 300);
+        quad(222, 259, 228, 259, 217, 276, 211, 276);
+        quad(230, 259, 236, 259, 225, 276, 219, 276);
+        quad(238, 259, 242, 259, 233, 276, 227, 276);
+        noFill();
+        stroke(36, 36, 36);
+        arc(246, 389, 107, 143, 244, 294);
+        strokeCap(ROUND);
+        return get(190, 249, 206, 126);
+    },
+    'image-23': function() {
+         noFill();
+        strokeCap(SQUARE);
+        stroke(97, 52, 18);
+        strokeWeight(32);
+        arc(288, 373, 119, 160, 180, 237);
+        stroke(199, 199, 199);
+        strokeWeight(5);
+        rect(265, 302, 30, 25, 10);
+        arc(285, 311, 20, 25, 115, 180);
+        strokeCap(ROUND);
+        noStroke();
+        fill(199, 199, 199);
+        rect(260, 274, 67, 37, 0, 0, 58, 0);
+        triangle(242, 298, 268, 319, 260, 274);
+        triangle(255, 298, 238, 275, 259, 291);
+        rect(281, 274, 130, 15, 20);
+        fill(122, 122, 122);
+        rect(269, 278, 48, 28, 5);
+        fill(199, 199, 199);
+        rect(270, 279, 46, 26, 5);
+        fill(122, 122, 122);
+        rect(293, 282, 24, 7, 43, 0, 0, 31);
+        rect(293, 294, 24, 7, 43, 0, 0, 31);
+        return get(190, 249, 221, 126);
+    },
+    'image-24': function() {
+        noStroke();
+        fill(66, 37, 2);
+        quad(222, 384, 257, 384, 244, 309, 229, 298);
+        triangle(252, 366, 240, 304, 268, 314);
+        fill(31, 31, 31);
+        beginShape();
+        vertex(266, 327);
+        vertex(228, 318);
+        vertex(216, 314);
+        vertex(216, 284);
+        vertex(240, 269);
+        vertex(312, 269);
+        vertex(320, 300);
+        vertex(307, 307);
+        vertex(276, 299);
+        endShape();
+        rect(300, 269, 162, 14, 30);
+        fill(66, 37, 2);
+        quad(311, 277, 454, 277, 437, 294, 318, 300);
+        stroke(66, 37, 2);
+        strokeWeight(5);
+        arc(255, 369, 68, 137, 170, 224);
+        noFill();
+        arc(289, 371, 68, 144, 173, 215);
+        arc(210, 331, 43, 38, -67, 36);
+        stroke(31, 31, 31);
+        strokeWeight(9);
+        rect(260, 292, 44, 30, 30);
+        strokeCap(SQUARE);
+        strokeWeight(6);
+        arc(293, 299, 30, 30, 101, 180);
+        strokeCap(ROUND);
+        noStroke();
+        return get(216, 269, 246, 115);
+    },
+    'image-25': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(117, 60, 17);
+        strokeWeight(26);
+        arc(265, 300, 172, 162, 184, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 36, 120);
+        stroke(0, 0, 0);
+        strokeWeight(3);
+        rect(228, 236, 27, 22, 30);
+        arc(245, 238, 20, 29, 105, 180);
+        noStroke();
+        fill(0, 0, 0);
+        rect(222, 209, 75, 29, 24);
+        rect(222, 215, 329, 9, 24);
+        quad(256, 239, 276, 239, 276, 250, 257, 260);
+        triangle(550, 218, 511, 215, 533, 211);
+        rect(529, 209, 20, 10, 20);
+        fill(117, 60, 17);
+        quad(221, 243, 408, 233, 407, 220, 212, 220);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(176, 295);
+        endShape();
+        fill(0, 0, 0);
+        rect(230, 210, 60, 15, 24);
+        fill(181, 181, 181);
+        rect(260, 213, 22, 7, 20);
+        fill(0, 0, 0);
+        ellipse(272, 216.5, 7, 7);
+        return get(59, 209, 492, 137);
+    },
+    'image-26': function() {
+        fill(71, 71, 71);
+        rect(458, 245, 70, 6, 30);
+        rect(443, 252, 70, 6, 30);
+        noFill();
+        strokeCap(SQUARE);
+        stroke(176, 102, 49);
+        strokeWeight(26);
+        arc(260, 300, 203, 103, 176, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 59, 123);
+        stroke(0, 0, 0);
+        strokeWeight(3);
+        rect(224, 260, 27, 22, 30);
+        arc(245, 263, 20, 29, 105, 180);
+        noStroke();
+        fill(176, 102, 49);
+        quad(211, 268, 356, 261, 356, 245, 203, 244);
+        rect(356, 245, 113, 16);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(156, 301);
+        endShape();
+        fill(0, 0, 0);
+        quad(251, 266, 293, 264, 292, 244, 251, 244);
+        rect(210, 238, 82, 9, 24);
+        fill(71, 71, 71);
+        rect(356, 245, 5, 16, 2);
+        rect(467, 245, 8, 16, 2);
+        rect(469, 238, 5, 16, 2);
+        rect(254, 238, 33, 7, 0, 0, 30, 30);
+        rect(201, 238, 14, 10, 30);
+        ellipse(210, 236, 8, 8);
+        return get(59, 232, 469, 114);
+    },
+    'image-27': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(0, 0, 0);
+        strokeWeight(26);
+        arc(265, 300, 172, 162, 184, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 36, 120);
+        stroke(186, 186, 186);
+        strokeWeight(3);
+        rect(228, 236, 27, 22, 30);
+        arc(245, 238, 20, 29, 105, 180);
+        stroke(20, 20, 20);
+        strokeWeight(10);
+        arc(265, 300, 172, 162, 193, 233);
+        noStroke();
+        fill(186, 186, 186);
+        rect(222, 212, 75, 29, 24);
+        rect(222, 215, 329, 9, 24);
+        triangle(550, 218, 511, 215, 533, 211);
+        rect(529, 209, 20, 10, 20);
+        fill(0, 0, 0);
+        quad(221, 243, 455, 233, 460, 220, 212, 220);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(165, 295);
+        endShape();
+        fill(20, 20, 20);
+        quad(314, 235, 413, 229, 411, 223, 302, 223);
+        fill(186, 186, 186);
+        rect(227, 216, 4, 14, 24);
+        rect(311, 211, 3, 6, 24);
+        ellipse(229, 230, 7, 7);
+        return get(59, 209, 492, 137);
+    },
+    'image-28': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        rect(281, 296, 27, 22, 30);
+        arc(299, 297, 20, 29, 105, 180);
+        strokeWeight(30);
+        arc(380, 300, 100, 130, 113, 180);
+        noStroke();
+        fill(0, 0, 0);
+        beginShape();
+        vertex(255, 300);
+        vertex(255, 280);
+        vertex(263, 270);
+        vertex(380, 270);
+        vertex(380, 300);
+        endShape();
+        rect(418, 275, 56, 8, 30);
+        rect(418, 285, 103, 6, 30);
+        rect(517, 284, 36, 8, 30);
+        rect(433, 281, 10, 8, 30);
+        rect(453, 281, 10, 8, 30);
+        triangle(520, 288, 520, 265, 509, 288);
+        fill(112, 59, 24);
+        quad(260, 300, 280, 300, 270, 353, 250, 353);
+        rect(273, 300, 12, 10);
+        rect(378, 270, 47, 13, 30, 30, 0, 0);
+        rect(365, 283, 60, 17, 0, 0, 30, 30);
+        beginShape();
+        vertex(255, 300);
+        vertex(255, 280);
+        vertex(246, 280);
+        vertex(240, 285);
+        vertex(225, 280);
+        vertex(138, 280);
+        vertex(131, 329);
+        vertex(239, 311);
+        endShape();
+        fill(189, 189, 189);
+        rect(315, 280, 35, 9, 30);
+        return get(130, 265, 429, 108);
+    },
+    'image-29': function() {
+        stroke(255, 0, 0);
+        strokeWeight(8);
+        fill(255, 132, 0);
+        beginShape();
+        vertex(0, 170);
+        vertex(265, 44);
+        vertex(235, 79);
+        vertex(301, 82);
+        vertex(253, 146);
+        vertex(330, 146);
+        vertex(287, 182);
+        vertex(379, 200);
+        vertex(313, 216);
+        vertex(354, 235);
+        vertex(261, 242);
+        vertex(318, 278);
+        vertex(249, 281);
+        vertex(302, 319);
+        vertex(0, 230);
+        endShape();
+        noStroke();
+        fill(255, 242, 0);
+        beginShape();
+        vertex(0, 185);
+        vertex(228, 70);
+        vertex(218, 91);
+        vertex(277, 92);
+        vertex(233, 157);
+        vertex(303, 154);
+        vertex(260, 189);
+        vertex(335, 199);
+        vertex(278, 214);
+        vertex(316, 228);
+        vertex(229, 235);
+        vertex(284, 266);
+        vertex(220, 274);
+        vertex(262, 299);
+        vertex(0, 220);
+        endShape();
+        return get(0, 0, 400, 400);
+    },
+    'image-30': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(50, 100, 400, 63);
+        quad(73, 150, 197, 200, 450, 200, 450, 150);
+        rect(250, 200, 100, 165, 0, 0, 0, 35);
+        arc(75, 100, 50, 50, 180, 360);
+        quad(450, 101, 450, 75, 434, 75, 414.5, 93);
+        triangle(450, 100, 415, 92, 415, 100);
+        rect(450, 118, 15, 75, 0, 60, 60, 0);
+        rect(459, 123, 15, 65, 0, 60, 60, 0);
+        rect(466, 141, 46, 24, 3);
+        fill(20, 20, 20);
+        rect(140, 118, 262, 10, 30);
+        rect(140, 138, 262, 10, 30);
+        rect(260, 236, 79, 5, 30);
+        rect(260, 246, 79, 5, 30);
+        rect(260, 256, 74, 5, 30);
+        rect(260, 266, 74, 5, 30);
+        rect(260, 276, 69, 5, 30);
+        rect(260, 286, 69, 5, 30);
+        rect(260, 296, 64, 5, 30);
+        rect(260, 306, 59, 5, 30);
+        rect(260, 316, 59, 5, 30);
+        rect(284, 365, 60, 100);
+        fill(15, 15, 15);
+        rect(281, 464, 66, 3);
+        noFill();
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        strokeCap(SQUARE);
+        arc(395, 200, 60, 70, 122, 180);
+        strokeCap(ROUND);
+        strokeWeight(4);
+        rect(340, 195, 60, 50, 10);
+        return get(50, 75, 463, 392);
+    },
+    'image-31': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(5, 200, 13, 79, 30);
+        rect(5, 200, 108, 20, 30);
+        quad(16, 278, 6, 265, 89, 216, 112, 216);
+        rect(81, 200, 38, 29, 30);
+        rect(112, 202, 26, 20);
+        rect(136, 200, 9, 26, 30);
+        rect(143, 195, 109, 46, 6);
+        triangle(125, 311, 157, 258, 138, 269);
+        quad(124, 311, 152, 321, 176, 267, 158, 255);
+        ellipse(160, 285, 20, 20);
+        ellipse(153, 301, 20, 20);
+        rect(166, 267, 40, 3);
+        quad(205, 270, 252, 257, 252, 233, 205, 233);
+        quad(173, 270, 158, 256, 148, 233, 173, 233);
+        rect(173, 241, 32, 10);
+        rect(246, 195, 250, 30, 5);
+        triangle(251, 225, 259, 225, 251, 249);
+        for(var i = 180; i<487; i+=8) {
+            rect(i, 193, 5, 4, 2);
+        }
+        rect(488, 206, 46, 10, 5);
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        noFill();
+        arc(143, 261, 27, 46, -65, -9);
+        arc(161, 328, 75, 142, 197, 260);
+        arc(178, 259, 15, 20, 119, 270);
+        arc(197, 259, 15, 20, -90, 51);
+        strokeWeight(4);
+        stroke(20, 20, 20);
+        for(var i = 272; i<492; i+=17) {
+            line(i, 204, i+5, 206);
+            line(i, 211, i+8, 211);
+            line(i, 218, i+5, 216);
+        }
+        strokeCap(SQUARE);
+        stroke(0, 0, 0);
+        arc(196, 251, 30, 40, 133, 180);
+        stroke(20, 20, 20);
+        strokeWeight(40);
+        arc(378, 225, 300, 300, 142, 166);
+        strokeCap(ROUND);
+        return get(5, 192, 529, 140);
+    },
+    'image-32': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(5, 200, 13, 79, 30);
+        rect(5, 200, 108, 20, 30);
+        triangle(119, 214, 11, 213, 17, 276);
+        rect(81, 200, 38, 29, 30);
+        rect(112, 202, 26, 20);
+        rect(136, 200, 9, 26, 30);
+        rect(143, 195, 109, 46, 6);
+        triangle(125, 311, 157, 258, 138, 269);
+        quad(124, 311, 152, 321, 176, 267, 158, 255);
+        ellipse(160, 285, 20, 20);
+        ellipse(153, 301, 20, 20);
+        rect(166, 267, 40, 3);
+        quad(205, 270, 252, 257, 252, 233, 205, 233);
+        quad(173, 270, 158, 256, 148, 233, 173, 233);
+        rect(173, 241, 32, 10);
+        rect(246, 195, 20, 25, 5);
+        triangle(224, 216, 261, 219, 247, 249);
+        quad(266, 192, 266, 225, 352, 222, 352, 195);
+        rect(348, 203, 139, 10, 4);
+        for(var i = 151; i<257; i+=8) {
+            rect(i, 193, 5, 4, 2);
+        }
+        rect(158, 187, 20, 8, 3);
+        rect(160, 169, 4, 23, 3);
+        rect(374, 175, 5, 29, 5);
+        quad(375, 175, 352, 203, 359, 203, 375, 183);
+        fill(20, 20, 20);
+        for(var i = 270; i<347; i+=7) {
+            rect(i, 195, 2, 11, 1);
+            rect(i, 211, 2, 11, 1);
+        }
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        noFill();
+        arc(143, 261, 27, 46, -65, -9);
+        arc(161, 328, 75, 142, 197, 260);
+        arc(178, 259, 15, 20, 119, 270);
+        arc(197, 259, 15, 20, -90, 51);
+        strokeWeight(4);
+        strokeCap(SQUARE);
+        arc(196, 251, 30, 40, 133, 180);
+        stroke(20, 20, 20);
+        strokeWeight(40);
+        arc(378, 225, 300, 300, 142, 166);
+        strokeCap(ROUND);
+        return get(5, 169, 482, 163);
+    },
+    'image-33': function() {
+        noStroke();
+        fill(0, 0, 0);
+        rect(5, 200, 13, 79, 30);
+        rect(5, 200, 108, 20, 30);
+        quad(16, 278, 6, 265, 89, 216, 112, 216);
+        rect(81, 200, 38, 29, 30);
+        rect(112, 202, 26, 20);
+        rect(136, 200, 9, 26, 30);
+        rect(143, 195, 109, 46, 6);
+        triangle(125, 311, 157, 258, 138, 269);
+        quad(124, 311, 152, 321, 176, 267, 158, 255);
+        ellipse(160, 285, 20, 20);
+        ellipse(153, 301, 20, 20);
+        rect(166, 267, 40, 3);
+        quad(205, 270, 252, 270, 252, 233, 205, 233);
+        quad(173, 270, 158, 256, 148, 233, 173, 233);
+        rect(173, 241, 32, 10);
+        rect(246, 195, 119, 30, 5);
+        triangle(251, 225, 259, 225, 251, 249);
+        for(var i = 180; i<358; i+=8) {
+            rect(i, 193, 5, 4, 2);
+        }
+        for(var i = 261; i<358; i+=8) {
+            rect(i, 224, 5, 4, 2);
+        }
+        rect(300, 224, 30, 10, 2);
+        rect(303, 228, 24, 60, 6);
+        rect(302, 287, 26, 10, 2);
+        rect(358, 206, 85, 10, 5);
+        arc(163, 196, 30, 30, 180, 360);
+        rect(377, 181, 8, 30, 3);
+        ellipse(381, 186, 10, 12);
+        fill(24, 46, 24);
+        rect(208, 270, 41, 64, 2);
+        stroke(0, 0, 0);
+        strokeWeight(5);
+        noFill();
+        arc(143, 261, 27, 46, -65, -9);
+        arc(161, 328, 75, 142, 197, 260);
+        arc(178, 259, 15, 20, 119, 270);
+        arc(197, 259, 15, 20, -90, 51);
+        strokeWeight(4);
+        stroke(51, 51, 51);
+        for(var i = 264; i<362; i+=17) {
+            line(i, 204, i+5, 204);
+            line(i, 211, i+8, 211);
+            line(i, 218, i+5, 218);
+        }
+        strokeCap(SQUARE);
+        stroke(0, 0, 0);
+        arc(196, 251, 30, 40, 133, 180);
+        strokeCap(ROUND);
+        return get(5, 180, 438, 154);
+    },
+    'image-34': function() {
+        noFill();
+        strokeCap(SQUARE);
+        stroke(47, 77, 47);
+        strokeWeight(26);
+        arc(265, 300, 172, 162, 184, 239);
+        strokeWeight(5);
+        arc(169, 233, 55, 50, 36, 120);
+        stroke(0, 0, 0);
+        strokeWeight(3);
+        rect(228, 236, 27, 22, 30);
+        arc(245, 238, 20, 29, 105, 180);
+        noStroke();
+        fill(186, 186, 186);
+        rect(222, 214, 75, 22, 24);
+        fill(0, 0, 0);
+        rect(259, 215, 329, 9, 24);
+        rect(269, 207, 5, 10);
+        rect(296, 207, 5, 10);
+        rect(257, 195, 70, 12, 5);
+        quad(254, 266, 305, 255, 305, 238, 254, 240);
+        triangle(240, 193, 240, 211, 305, 200);
+        triangle(354, 188, 354, 214, 282, 200);
+        fill(47, 77, 47);
+        quad(221, 243, 455, 233, 460, 220, 212, 220);
+        beginShape();
+        vertex(187, 255);
+        vertex(163, 260);
+        vertex(157, 252);
+        vertex(59, 266);
+        vertex(73, 346);
+        vertex(165, 295);
+        endShape();
+        fill(186, 186, 186);
+        rect(227, 216, 4, 14, 24);
+        ellipse(229, 230, 7, 7);    
+        return get(59, 188, 529, 158);
+    },
+    'image-35': function() {
+        displayhillHead();
+        return get(0, 0, 80, 80);
+    },
+    'image-36': function() {
+        displayhillLeg();
+        return get(0, 0, 40, 130);
+    },
+    'image-37': function() {
+        strokeCap(ROUND);
+        noStroke();
+        fill(186, 91, 7);
+        arc(50, 100, 95, 200, 180, 360);
+        fill(214, 184, 17);
+        beginShape();
+        vertex(0, 100);
+        vertex(0, 300);
+        vertex(8, 312);
+        vertex(92, 312);
+        vertex(100, 300);
+        vertex(100, 100);
+        endShape();
+        ellipse(50, 316, 100, 29);
+        fill(255, 255, 255, 100);
+        beginShape();
+        vertex(12, 100);
+        vertex(12, 307);
+        vertex(7, 325);
+        vertex(30, 329);
+        vertex(35, 313);
+        vertex(35, 100);
+        endShape();
+        noFill();
+        stroke(255, 255, 255, 100);
+        strokeWeight(23);
+        arc(71, 100, 95, 202, 189, 222);
+        noFill();
+        stroke(173, 144, 28);
+        strokeWeight(2);
+        arc(50, 300, 100, 29, 29, 147);
+        return get(0, 0, 100, 330);
+    },
+};
+var py = 450;
+var txt = function(x, y, s, txt){
+    textFont(createFont("chiller"), s);
+    if(has_font===false){
+        textFont(createFont("monospace"), s/1.7);
+    }
+    fill(150, 21, 21);
+    text(txt, x+s/20, y+s/20);
+    fill(0, 0, 0);
+    text(txt, x, y);
+};
+var screen = "logo";
+var clicktime = 0;
+var tran = false;
+var swipe = 0;
+var swipe2 = 0;
+var secondscreen = "game";
+var button = function(x, y, s, ts, t, newscreen, shake){
+    this.x = x;
+    this.y = y;
+    this.s = s;
+    this.ts = ts;
+    this.t = t;
+    this.newscreen = newscreen;
+    this.shake = 0;
+};
+button.prototype.draw = function() {
+    textAlign(CENTER, CENTER);
+    imageMode(CENTER);
+    image(images['image-6'], this.x+random(-this.shake, this.shake), this.y+random(-this.shake, this.shake), this.s, this.s);
+    textAlign(CENTER, CENTER);
+    txt(this.x+random(-this.shake, this.shake), this.y+random(-this.shake, this.shake), this.ts, this.t);
+    if(dist(mouseX,mouseY, this.x,this.y)<=this.s/2){
+        cursor("pointer");
+        this.shake = 1;
+        if(mouseIsPressed&&clicktime>10){
+            tran = true;
+            secondscreen = this.newscreen;
+            clicktime = 0;
+        }
+    }
+    else{
+        this.shake = 0;
+    }
+    textAlign(LEFT);
+    imageMode(CORNER);
+};
+var playbutton = new button(300, 300, 150, 100, "Play", "play");
+var marketbutton = new button(450, 450, 150, 80, "Market","market");
+var MODSbutton = new button(150, 450, 150, 100, "MODS","MODS");
+var menubutton = new button(300, 500, 150, 100, "Menu","menu");
+var playerhealth = 100;
+var ammo = Save_Code[1];
+var shooting = false;
+var shoot = 78;
+var timeofshot = 0;
+var kills = 0;
+var killrecord = Save_Code[2];
+var guntype = Save_Code[0];
+var firstaidkit = [Save_Code[21], Save_Code[22], Save_Code[23], Save_Code[27], Save_Code[28], Save_Code[29]];
+var playtime = 0;
+var totalzombieskilled = Save_Code[25];
+var equipped = Save_Code[6];
+var soldiers = [Save_Code[30], Save_Code[31]];
+var fireRate = 0;
+var shooty = 45;
+var zombie = function(x, y, p, h, r, rs, sz, dt){
+    this.x = x;
+    this.y = y;
+    this.p = p;
+    this.h = 75;
+    this.r = 0;
+    this.rs = 2;
+    this.sz = true;
+    this.dt = 0;
+};
+zombie.prototype.draw = function(){
+    if(this.h<=0){
+        this.sz = false;
+        this.dt++;
+        if(this.dt===40&&this.p===1){
+            this.sz = true;
+            this.h = 75;
+            this.x = random(600, 900);
+            this.y = random(430, 452.5);
+            this.dt = 0;
+        }
+        if(this.dt===45&&this.p===2){
+            this.sz = true;
+            this.h = 75;
+            this.x = random(600, 900);
+            this.y = random(452.5, 475);
+            this.dt = 0;
+        }
+        if(this.dt===35&&this.p===3){
+            this.sz = true;
+            this.h = 75;
+            this.x = random(600, 900);
+            this.y = random(475, 497.5);
+            this.dt = 0;
+        }
+        if(this.dt===37&&this.p===4){
+            this.sz = true;
+            this.h = 75;
+            this.x = random(600, 900);
+            this.y = random(497.5, 520);
+            this.dt = 0;
+        }
+        if(this.dt===0){
+            kills++;
+            totalzombieskilled--;
+        }
+    }
+    if(this.sz===true){
+        noStroke();
+        pushMatrix();
+        translate(this.x+11, this.y+25);
+        rotate(-this.r+85);
+        image(images['image-4'], -6, 0, 8, 20);
+        popMatrix();
+        fill(99, 99, 99);
+        rect(this.x+5, this.y+20, 12, 22);
+        pushMatrix();
+        translate(this.x+11, this.y+25);
+        rotate(this.r+85);
+        image(images['image-4'],-6, 0, 8, 20);
+        popMatrix();
+        image(images['image-3'], this.x, this.y, 20, 20);
+        pushMatrix();
+        translate(this.x+11, this.y+40);
+        rotate(this.r);
+        image(images['image-5'],-6, 0, 12, 20);
+        popMatrix();
+        pushMatrix();
+        translate(this.x+11, this.y+40);
+        rotate(-this.r);
+        image(images['image-5'],-6, 0, 12, 20);
+        popMatrix();
+        fill(255, 255, 255);
+        rect(this.x-28, this.y-10, 77, 8, 30);
+        fill(255, 0, 0);
+        rect(this.x-27, this.y-9, this.h, 6, 30);
+        if(this.r>=40){
+            this.rs = -2;
+        }
+        if(this.r<=-40){
+            this.rs = +2;
+        }
+        this.r+=this.rs;
+        this.x-=2;
+        if(playtime>=1500){
+            this.x-=0.5;
+        }
+        if(playtime>=2000){
+            this.x-=0.5;
+        }
+        if(playtime>=2500){
+            this.x-=0.5;
+        }
+        if(playtime>=3000){
+            this.x-=0.5;
+        }
+        if(playtime>=3500){
+            this.x-=0.5;
+        }
+        if(playtime>=4000){
+            this.x-=0.5;
+        }
+        if(460>=this.y&&460<=this.y+60&&this.x>59&&soldiers[0]===true&&fireRate===90){
+            if(460>=this.y&&460<=this.y+20||Save_Code[34]===1) {
+                this.h = 0;
+            }
+            this.h-=15;
+            if(bonus===4){
+                this.h-=15;
+            }
+        }
+        if(547>=this.y&&547<=this.y+60&&this.x>59&&soldiers[1]===true&&fireRate===90){
+            if(547>=this.y&&547<=this.y+20||Save_Code[34]===1) {
+                this.h = 0;
+            }
+            this.h-=15;
+            if(bonus===4){
+                this.h-=15;
+            }
+        }
+        if(py-10>=this.y&&py-10<=this.y+60&&shooting===true&&timeofshot===0&&this.x>78&&guntype===1){
+            if(py-10>=this.y&&py-10<=this.y+20||Save_Code[34]===1) {
+                this.h = 0;
+            }
+            this.h-=15;
+            if(bonus===3){
+                this.h-=15;
+            }
+        }
+        if(py-5>=this.y&&py-5<=this.y+60&&shooting===true&&timeofshot===0&&this.x>78&&guntype===2){
+            if(py-5>=this.y&&py-5<=this.y+20||Save_Code[34]===1) {
+                this.h = 0;
+            }
+            this.h-=15;
+            if(bonus===4){
+                this.h-=15;
+            }
+            if(equipped===12){
+                this.h = 0;
+            }
+        }
+        if(py-5>=this.y&&py-5<=this.y+60&&shooting===true&&this.x>78&&guntype===3){
+            if(py-5>=this.y&&py-5<=this.y+20||Save_Code[34]===1) {
+                this.h = 0;
+            }
+            this.h-=15;
+            if(bonus===4){
+                this.h-=15;
+            }
+        }
+        if(this.x<=-20){
+            this.h = 75;
+            this.x = random(600, 650);
+            if(this.p===1){
+                this.y = random(430, 452.5);
+            }
+            if(this.p===2){
+                this.y = random(452.5, 475);
+            }
+            if(this.p===3){
+                this.y = random(475, 497.5);
+            }
+            if(this.p===4){
+                this.y = random(497.5, 520);
+            }
+            playerhealth-=10;
+        }
+        if(this.h<75) {
+            this.h-=0.2;
+        }
+    if(playerhealth<=0){
+        this.sz = true;
+        this.h = 75;
+        this.x = random(600, 700);
+        if(this.p===1){
+            this.y = random(430, 452.5);
+        }
+        if(this.p===2){
+            this.y = random(452.5, 475);
+        }
+        if(this.p===3){
+            this.y = random(475, 497.5);
+        }
+        if(this.p===4){
+            this.y = random(497.5, 520);
+        }
+        this.dt = 0;
+        tran = true;
+        secondscreen = "stats";
+    }
+    }
+};
+var z1 = new zombie(600, 450, 1);
+var z2 = new zombie(640, 500, 2);
+var z3 = new zombie(630, 420, 3);
+var z4 = new zombie(680, 520, 4);
+var z5 = new zombie(680, 520, 1);
+var z6 = new zombie(640, 500, 2);
+var z7 = new zombie(630, 420, 3);
+var z8 = new zombie(680, 520, 4);
+var reloadtime = Save_Code[3];
+var ammoamount = Save_Code[4];
+var reload = 0;
+var money = Save_Code[5];
+var scorecount = 0;
+var addmoney = kills*10;
+var purchased = [Save_Code[9], Save_Code[10], Save_Code[11], Save_Code[12], Save_Code[13], Save_Code[14], Save_Code[15], Save_Code[16], Save_Code[17], Save_Code[18], Save_Code[19], Save_Code[20], Save_Code[7]];
+var rank = Save_Code[24];
+var short = Save_Code[26];
+var sniperrifle = Save_Code[8];
+var opencrate = [color(0, 0, 0), 0, "none", false, 0, 255, 0];
+var flash = [];
+var STOP = false;
+mouseReleased = function() {
+    if(screen==="play"&&ammo>0&&mouseButton===LEFT&&guntype!==3){
+        if(Save_Code[32]===0) {
+            ammo--;
+        }
+        shooting = true;
+    }
+    if(guntype===3) {
+        STOP = true;
+    }
+    if(mouseX>=3&&mouseY>=3&&mouseX<=53&&mouseY<=53&&screen==="menu"){
+        println(guntype+", "+ammo+", "+killrecord+", "+reloadtime+", "+ammoamount+", "+money+", "+equipped+", "+purchased[12]+", "+sniperrifle+", "+purchased[0]+", "+purchased[1]+", "+purchased[2]+", "+purchased[3]+", "+purchased[4]+", "+purchased[5]+", "+purchased[6]+", "+purchased[7]+", "+purchased[8]+", "+purchased[9]+", "+purchased[10]+", "+purchased[11]+", "+firstaidkit[0]+", "+firstaidkit[1]+", "+firstaidkit[2]+", "+rank+", "+totalzombieskilled+", "+short+", "+firstaidkit[3]+", "+firstaidkit[4]+", "+firstaidkit[5]+", "+soldiers[0]+", "+soldiers[1]+", "+Save_Code[32]+", "+Save_Code[33]+", "+Save_Code[34]+", "+Save_Code[35]);
+    }
+    if(mouseButton===RIGHT&&screen==="play"&&playerhealth>0){
+        if(firstaidkit[0]===0&&firstaidkit[1]===0&&firstaidkit[2]===1){
+            if(bonus!==0){
+                playerhealth+=50;
+            }
+            if(bonus===0||Save_Code[33]===1){
+                playerhealth = 100;
+            }
+            firstaidkit[2] = 0;
+        }
+        if(firstaidkit[0]===0&&firstaidkit[1]===1){
+            if(bonus!==0){
+                playerhealth+=50;
+            }
+            if(bonus===0||Save_Code[33]===1){
+                playerhealth = 100;
+            }
+            firstaidkit[1] = 0;
+        }
+        if(firstaidkit[0]===1){
+            if(bonus!==0){
+                playerhealth+=50;
+            }
+            if(bonus===0||Save_Code[33]===1){
+                playerhealth = 100;
+            }
+            firstaidkit[0] = 0;
+        }     
+    }
+    if(mouseX>=13&&mouseY>=390&&mouseX<=128&&mouseY<=430&&money>=800&&mouseIsPressed&&screen==="crates"&&bonus!==5){
+        money-=800;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(46, 231, 255);
+    }
+    if(mouseX>=13&&mouseY>=390&&mouseX<=128&&mouseY<=430&&money>=400&&mouseIsPressed&&screen==="crates"&&bonus===5){
+        money-=400;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(46, 231, 255);
+    }
+    if(mouseX>=13&&mouseY>=390&&mouseX<=128&&mouseY<=430&&mouseIsPressed&&screen==="crates"&&Save_Code[35]===1){
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(46, 231, 255);
+    }
+    if(mouseX>=163&&mouseY>=390&&mouseX<=288&&mouseY<=430&&money>=1200&&mouseIsPressed&&screen==="crates"&&bonus!==5){
+        money-=1200;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(250, 250, 53);
+        }
+    if(mouseX>=163&&mouseY>=390&&mouseX<=288&&mouseY<=430&&money>=600&&mouseIsPressed&&screen==="crates"&&bonus===5){
+        money-=600;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(250, 250, 53);
+    }
+    if(mouseX>=163&&mouseY>=390&&mouseX<=288&&mouseY<=430&&mouseIsPressed&&screen==="crates"&&Save_Code[35]===1){
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(250, 250, 53);
+    }
+    if(mouseX>=313&&mouseY>=390&&mouseX<=438&&mouseY<=430&&money>=1500&&mouseIsPressed&&screen==="crates"&&bonus!==5){
+            money-=1500;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(38, 255, 52);
+    }
+    if(mouseX>=313&&mouseY>=390&&mouseX<=438&&mouseY<=430&&money>=750&&mouseIsPressed&&screen==="crates"&&bonus===5){
+        money-=750;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(38, 255, 52);
+    }
+    if(mouseX>=313&&mouseY>=390&&mouseX<=438&&mouseY<=430&&mouseIsPressed&&screen==="crates"&&Save_Code[35]===1){
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(38, 255, 52);
+    }
+    if(mouseX>=463&&mouseY>=390&&mouseX<=588&&mouseY<=430&&money>=2000&&mouseIsPressed&&screen==="crates"&&bonus!==5){
+        money-=2000;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(255, 23, 23);
+    }
+    if(mouseX>=463&&mouseY>=390&&mouseX<=588&&mouseY<=430&&money>=1000&&mouseIsPressed&&screen==="crates"&&bonus===5){
+        money-=1000;
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(255, 23, 23);
+    }
+    if(mouseX>=463&&mouseY>=390&&mouseX<=588&&mouseY<=430&&mouseIsPressed&&screen==="crates"&&Save_Code[35]===1){
+        secondscreen = "open";
+        clicktime = 0;
+        tran = true;
+        opencrate[0] = color(255, 23, 23);
+    }
+    if(mouseX>=170&&mouseX<=400&&mouseY>=175&&mouseY<=475&&screen==="market") {
+        clicktime = 0;
+        if(mouseY>=175&&mouseY<=225) {
+            screen = "pistols";
+        }
+        if(mouseY>225&&mouseY<=275) {
+            screen = "rifles";
+        }
+        if(mouseY>275&&mouseY<=325) {
+            screen = "machine guns";
+        }
+        if(mouseY>325&&mouseY<=375) {
+            screen = "crates";
+        }
+        if(mouseY>375&&mouseY<=425) {
+            screen = "first aid";
+        }
+        if(mouseY>425&&mouseY<=475) {
+            screen = "soldiers";
+        }
+    }
+};
+var AwSnap = [
+    [0,1,1,1,1,1,1,0,1,1,1,1,1,1,0,0,0,0,0,0],
+    [1,2,2,2,2,2,2,1,2,2,2,2,2,2,1,0,0,0,0,0],
+    [1,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,0],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,2,2,2,2,1,2,1,2,2,2,2,1,2,1,2,2,2,2,1],
+    [1,2,2,2,2,2,1,2,2,2,2,2,2,1,2,2,2,2,2,1],
+    [1,2,2,2,2,1,2,1,2,2,2,2,1,2,1,2,2,2,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,2,2,2,2,2,2,1,1,1,1,1,2,2,2,2,2,2,2,1],
+    [1,2,2,2,2,1,1,2,2,2,2,2,1,1,2,2,2,2,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+];
+var AS = [
+    color(255, 0, 0, 0),
+    color(69, 66, 66),
+    color(255, 255, 255)
+];
+var displayAwSnap = function(x, y, s){
+    noStroke();
+    for(var i in AwSnap){
+        for(var j in AwSnap[i]){
+            fill(AS[AwSnap[j][i]]);
+            rect(i*s+x, j*s+y, s, s);
+        }
+    }
+};
+var mt = function(x, y, s, t){
+    textFont(createFont("monospace bold"), s);
+    fill(0, 0, 0);
+    text(t, x, y);
+};
+var Crate = function(x, y, s, c){
+    pushMatrix();
+    translate(x, y);
+    scale(s/600);
+    noStroke();
+    fill(189, 189, 189);
+    quad(300, 0, 600, 63, 300, 150, 0, 63);
+    fill(135, 135, 135);
+    quad(600, 463, 600, 63, 300, 150, 300, 600);
+    fill(158, 158, 158);
+    quad(0, 463, 0, 63, 300, 150, 300, 600);
+    fill(c);
+    ellipse(300, 64, 149, 37);
+    ellipse(465, 315, 106, 115);
+    ellipse(135, 315, 106, 115);
+    quad(170, 111, 126, 101, 407, 23, 445, 31);
+    quad(170, 111, 126, 101, 106, 511, 144, 528);
+    quad(430, 111, 474, 101, 193, 23, 155, 31);
+    quad(430, 111, 474, 101, 494, 511, 456, 528);
+    quad(0, 253, 0, 298, 300, 389, 300, 342);
+    quad(600, 253, 600, 298, 300, 389, 300, 342);
+    fill(189, 189, 189);
+    ellipse(300, 64, 124, 25);
+    fill(135, 135, 135);
+    ellipse(465, 315, 83, 95);
+    fill(158, 158, 158);
+    ellipse(135, 315, 83, 95);
+    fill(c);
+    ellipse(300, 64, 90, 17);
+    ellipse(465, 315, 63, 73);
+    ellipse(135, 315, 63, 73);
+    popMatrix();
+};
+var info = [140, 6, 0, 1, 0];
+var buygun = function(x, y, g, gt, rt, a, c, gn, rr){
+    if(mouseX>=x-130&&mouseY>=y-25&&mouseX<=x+260&&mouseY<y+25){
+        cursor("pointer");
+        fill(255, 255, 255, 100);
+        stroke(255, 255, 255);
+        strokeWeight(3);
+        rect(x-130, y-25, 260, 50);
+        info[0] = rt;
+        info[1] = a;
+        info[4] = gn;
+        if(purchased[gn]===false){
+            info[2] = "$"+c;
+        }
+        else if(purchased[gn]===true&&equipped!==gn){
+            info[2] = "Purchased";
+        }
+        else if(purchased[gn]===true&&equipped===gn) {
+            info[2] = "Equipped";
+        }
+        info[3] = rr;
+        if(mouseIsPressed&&money>=c&&purchased[gn]===false&&rank>=rr&&clicktime>10&&mouseButton===LEFT){
+            money-=c;
+            equipped = gn;
+            ammo = info[1];
+            ammoamount = info[1];
+            reloadtime = info[0];
+            purchased[gn] = true;
+            guntype = gt;
+            clicktime = 0;
+        }
+        if(mouseIsPressed&&purchased[gn]===false&&rank>=rr&&clicktime>10&&mouseButton===LEFT&&Save_Code[35]===1) {
+            equipped = gn;
+            ammo = info[1];
+            ammoamount = info[1];
+            reloadtime = info[0];
+            purchased[gn] = true;
+            guntype = gt;
+            clicktime = 0;
+        }
+        if(mouseIsPressed&&purchased[gn]===true&&clicktime>10){
+            equipped = gn;
+            ammo = info[1];
+            ammoamount = info[1];
+            reloadtime = info[0];
+            guntype = gt;
+            clicktime = 0;
+        }
+    }
+    mt(x, y, 40, g);  
+};
+var buyKit = function(x, y, t, c, sc) {
+    if(t==="manuel") {
+        fill(255, 0, 0);
+    }
+    else if(t==="auto") {
+        fill(5, 66, 14);
+    }
+    rect(x-130, y-25, 260, 50, 30);
+    fill(255, 255, 255);
+    ellipse(x-100, y, 40, 40);
+    ellipse(x+100, y, 40, 40);
+    fill(255, 0, 0);
+    rect(x-105, y-15, 10, 30, 20);
+    rect(x+95, y-15, 10, 30, 20);
+    rect(x-115, y-5, 30, 10, 20);
+    rect(x+85, y-5, 30, 10, 20);
+    if(bonus!==6) {
+        mt(x, y, 30, "$"+c);
+    }
+    if(bonus===6) {
+        mt(x, y, 30, "$"+c/2);
+    }
+    if(mouseX>=x-130&&mouseY>=y-25&&mouseX<=x+260&&mouseY<y+25&&firstaidkit[sc]===0) {
+        cursor("pointer");
+        if(mouseIsPressed&&money>=c&&bonus!==6&&clicktime>10) {
+            firstaidkit[sc] = 1;
+            money-=c;
+            clicktime = 0;
+        }
+        if(mouseIsPressed&&bonus!==6&&clicktime>10&&Save_Code[35]===1) {
+            firstaidkit[sc] = 1;
+            clicktime = 0;
+        }
+        if(mouseIsPressed&&money>=c/2&&bonus===6&&clicktime>10) {
+            firstaidkit[sc] = 1;
+            money-=c/2;
+            clicktime = 0;
+        }
+        if(mouseIsPressed&&bonus===6&&clicktime>10&&Save_Code[35]===1) {
+            firstaidkit[sc] = 1;
+            clicktime = 0;
+        }
+    }
+    if(firstaidkit[sc]===1) {
+        fill(255, 255, 255, 100);
+        rect(x-130, y-25, 260, 50, 30);
+    }
+};
+var ranker = function() {
+    mt(20, 40, 25, "You have\n$"+money);
+    mt(20, 130, 30, "Back");
+    mt(470, 40, 25, "Your rank:");
+    image(images['image-12'], 467, 50, 20, 20);
+    if(rank>=2) {
+        image(images['image-12'], 492, 50, 20, 20);
+    }
+    if(rank>=3) {
+        image(images['image-12'], 517, 50, 20, 20);
+    }
+    if(rank>=4) {
+        image(images['image-12'], 542, 50, 20, 20);
+    }
+    if(rank>=5) {
+        image(images['image-12'], 567, 50, 20, 20);
+    }
+};
+var shorttimer = 0;
+var Size = 0;
+var Size1 = -50;
+var Size2 = -100;
+var timer = 0;
+var xPositions = [];
+var yPositions = [];
+var rPositions = [];
+var gType = [];
+for(var i = 0; i<65; i++) {
+    xPositions[i] = random(0, 600);
+    yPositions[i] = random(-600, 0);
+    rPositions[i] = random(0, 360);
+    gType[i] = floor(random(0, 5));
+}
+var screen = "logo";
+var logovars = [createFont("monospace Bold"), 0, 1, 0, 0];
+var logo = function(newscreen){
+    logovars[3]+=1/60;
+    noStroke();
+    background(156, 156, 156);
+    fill(92, 92, 92);
+    for(var i = 0; i<700; i+=50) {
+        for(var j = 1; j<700; j+=50){
+            ellipse(i, j, 10, 10);
+        }
+    }
+    for(var i = 0; i<60; i++) {
+        pushMatrix();
+        translate(xPositions[i], yPositions[i]);
+        rotate(rPositions[i]);
+        image(images['image-37'], 0, -16 , 10, 32);
+        popMatrix();
+        yPositions[i]+=5;
+        rPositions[i]+=2;
+        if(yPositions[i]>610){
+            xPositions[i] = random(0, 600);
+            yPositions[i] = -50;
+            rPositions[i] = random(0, 360);
+        }
+    }
+    imageMode(CENTER);
+    for(var i = 60; i<65; i++) {
+        pushMatrix();
+        translate(xPositions[i], yPositions[i]);
+        rotate(rPositions[i]);
+        if(gType[i]===0) {
+            image(images['image-30'], 0, -16 , 100, 72);
+        }
+        if(gType[i]===1) {
+            image(images['image-21'], 0, -16 , 100, 59);
+        }
+        if(gType[i]===2) {
+            image(images['image-22'], 0, -16 , 100, 59);
+        }
+        if(gType[i]===3) {
+            image(images['image-23'], 0, -16 , 130, 66);
+        }
+        if(gType[i]===4) {
+            image(images['image-24'], 0, -16 , 130, 66);
+        }
+        popMatrix();
+        yPositions[i]+=5;
+        rPositions[i]+=2;
+        if(yPositions[i]>700){
+            xPositions[i] = random(0, 600);
+            yPositions[i] = random(-400, -100);
+            rPositions[i] = random(0, 360);
+            gType[i] = floor(random(0, 5));
+        }
+    }
+    imageMode(CORNER);
+    if(logovars[1]>=35){
+        logovars[2] = -1;
+    }
+    if(logovars[1]<=-35){
+        logovars[2] = 1;
+    }
+    logovars[1]+=logovars[2];
+    pushMatrix();
+    translate(width/2, height/2);
+    rotate(logovars[1]);
+    fill(255, 0, 0);
+    ellipse(0, 0, width/2, width/2);
+    fill(255, 140, 0);
+    ellipse(0, 0, width/2.5, width/2.5);
+    fill(255, 255, 0);
+    ellipse(0, 0, width/3, width/3);
+    textFont(logovars[0], width/11);
+    fill(0, 0, 0);
+    text("Kephas\nWallace", -width/6.7, -height/119);
+    fill(255, 255, 255);
+    text("Kephas\nWallace", -width/6.5, -height/73);
+    popMatrix();
+    if(logovars[3]>=3){
+        fill(0, 0, 0, logovars[4]);
+        rect(0, 0, width, height);
+        logovars[4]++;
+        if(logovars[4]>=255){
+            screen = newscreen;
+        }
+    }
+};
+draw = function() {
+    cursor("default");
+    clicktime++;
+    var imageKeys = Object.keys(images);
+    for (var i = 0; i < imageKeys.length; i++) {
+        var key = imageKeys[i];
+        var img = images[key];
+        if (typeof img === 'function') {
+            background(0, 0, 0, 0);
+            images[key] = img();
+        }
+    }
+    switch(screen){
+        case "logo":
+            logo("notice");
+            break;
+        case "notice":
+            {
+            if(killrecord!==0) {
+                screen = "menu";
+            }
+            background(255, 255, 255);
+            fill(0, 0, 0);
+            textFont(createFont("monospace"), 100);
+            text("Notice", 130, 110);
+            textSize(40);
+            text("This game uses fonts which are not avalible on all computers, so if the text goes off the screen that is due to your computer and not my fault. If it is too large switch has_font to false on line 2.", 10, 150, 600, 400);
+            textFont(createFont("kunstler script"), 50);
+            text("Kephas Wallace", 322, 539);
+            if(mouseIsPressed){
+                secondscreen = "menu";
+                tran = true;
+            }
+            }
+            break;
+        case "menu":
+            {
+            scorecount = 0;
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            txt(117+random(-0.3, 0.3), 112+random(-0.3, 0.3), 150, "Infected");
+            txt(120+random(-0.3, 0.3), 161+random(-0.3, 0.3), 60, "Defending the Breach");
+            fill(255, 0, 0);
+            textFont(createFont("Stencil"), 30);
+            pushMatrix();
+            translate(506, 136);
+            rotate(37);
+            text("V 2.0", 0, 0);
+            popMatrix();
+            fill(0, 0, 0);
+            pushMatrix();
+            translate(506, 136);
+            rotate(37);
+            text("V 2.0", 0, 0);
+            popMatrix();
+            playbutton.draw();
+            marketbutton.draw();
+            MODSbutton.draw();
+            kills = 0;
+            if(bonus!==1){
+                playerhealth = 100;
+            }
+            else if(bonus===1){
+                playerhealth = 150;
+            }
+            image(images['image-11'], 3, 3, 50, 50);
+            if(mouseX>=3&&mouseY>=3&&mouseX<=53&&mouseY<=53){
+                cursor("pointer");
+            }
+            if(rank===5&&short===false&&sniperrifle===false){
+                secondscreen = "short";
+                tran = true;
+            }
+            if(rank<5){
+                fill(125, 101, 62);
+                rect(200, 513, 200, 294, 50);
+                fill(59, 41, 6);
+                textFont(createFont("monospace"), 20);
+                text("Kills left till\nnext rank:"+totalzombieskilled+"\nCurrent Rank:"+rank, 217, 541);
+                image(images['image-12'], 375, 568, 20, 20);
+            }
+            }
+            break;
+        case "play":
+            {
+            playtime++;
+            image(images['image-1'], 0, 0, 600, 600);
+            if(guntype!==3) {
+                STOP = false;
+            }
+            z1.draw();
+            if(playtime>=1200){
+                z5.draw();
+            }
+            z2.draw();
+            if(playtime>=1800){
+                z6.draw();
+            }
+            z3.draw();
+            if(playtime>=2000){
+                z7.draw();
+            }
+            z4.draw();
+            if(playtime>=2150){
+                z8.draw();
+            }
+            if(guntype>=2&&equipped!==8){
+                fill(0, 0, 0);
+                rect(66, py-7, 10, 7);
+                image(images['image-8'], 72, py-7, 21, 7);
+            }        
+            if(ammo>0&&mouseButton===LEFT&&guntype===3&&mouseIsPressed){
+                if(Save_Code[32]===0) {
+                    ammo--;
+                }
+                shooting = true;
+                STOP = false;
+            }
+            else if(guntype===3) {
+                shooting = false;
+            }
+            if(STOP===true) {
+                shooting = false;
+            }
+            if(shooting===true){
+                timeofshot++;
+                strokeWeight(1);
+                stroke(255, 208, 0);
+                if(guntype===1){
+                    line(80, py-10, shoot, py-10);
+                }
+                if(guntype>=2&&equipped===8){
+                    line(80, py-10, shoot, py-10);
+                }
+                else if(guntype>=2&&equipped!==8) {
+                    line(110, py-10, shoot, py-10);
+                }
+                noStroke();
+                shoot+=100;
+            }
+            if(shooting===false){
+                timeofshot = 0;
+            }
+            if(shoot>600){
+                if(guntype===1||equipped===8) {
+                    shoot = 80;
+                }
+                else {
+                    shoot = 110;
+                }
+                if(guntype!==3) {
+                    shooting = false;
+                }
+            }
+            if(soldiers[0]===true) {
+                if(fireRate>=90&&fireRate<=91) {
+                    image(images['image-29'], 59, 456, 12, 12);
+                    strokeWeight(1);
+                    stroke(255, 208, 0);
+                    shooty+=100;
+                    line(45, 460, shooty, 460);
+                    noStroke();
+                }
+                image(images['image-35'], 15, 440, 20, 20);
+                fill(7, 48, 4);
+                rect(20, 460, 12, 20);
+                image(images['image-21'], 39, 460, 20, 10);
+                pushMatrix();
+                translate(25, 472);
+                rotate(-90);
+                image(images['image-15'], 0, 0, 7, 21);
+                popMatrix();
+                image(images['image-36'], 20, 480, 12, 20);
+    
+            }
+            if(soldiers[1]===true) {
+                if(fireRate>=90&&fireRate<=91) {
+                    image(images['image-29'], 58, 547, 12, 12);
+                    strokeWeight(1);
+                    stroke(255, 208, 0);
+                    shooty+=100;
+                    line(45, 551, shooty, 551);
+                    noStroke();
+                }
+                image(images['image-7'], 15, 530, 20, 20);
+                fill(0, 0, 0);
+                rect(20, 550, 12, 20);
+                image(images['image-22'], 39, 551, 20, 10);
+                image(images['image-8'], 25, 555, 21, 7);
+                image(images['image-9'], 20, 570, 12, 20);
+            }
+            if(soldiers[0]||soldiers[1]===true) {
+                fireRate++;
+                if(fireRate>120) {
+                    fireRate = 0;
+                }
+            }
+            image(images['image-7'], 50, py-30 , 20, 20);
+            fill(0, 0, 0);
+            rect(55, py-10, 12, 20);
+            image(images['image-9'], 55, py+10 , 12, 20);
+            switch(equipped){
+                case 0:
+                    image(images['image-23'], 74, py-12, 23, 11);
+                    flash = [97, py-15];
+                    break;
+                case 1:
+                    image(images['image-22'], 74, py-11, 20, 10);
+                    flash = [93, py-15];
+                    break;
+                case 2:
+                    image(images['image-21'], 74, py-11, 20, 10);
+                    flash = [94, py-15];
+                    break;
+                case 3:
+                    image(images['image-24'], 75, py-10, 23, 11);
+                    flash = [98, py-15];
+                    break;
+                case 4:
+                    image(images['image-25'], 64, py-10, 45, 15);
+                    flash = [109, py-14];
+                    break;
+                case 5:
+                    image(images['image-26'], 64, py-10, 43, 15);
+                    flash = [107, py-14];
+                    break;
+                case 6:
+                    image(images['image-27'], 64, py-10, 50, 15);
+                    flash = [114, py-14];
+                    break;
+                case 7:
+                    image(images['image-28'], 60, py-10, 48, 15);
+                    flash = [108, py-13];
+                    break;
+                case 8:
+                    image(images['image-30'], 67, py-12, 20, 17);
+                    flash = [88, py-15];
+                    break;
+                case 9:
+                    image(images['image-31'], 60, py-11, 52, 15);
+                    flash = [113, py-14];
+                    break;
+                case 10:
+                    image(images['image-32'], 60, py-11, 52, 15);
+                    flash = [113, py-14];
+                    break;
+                case 11:
+                    image(images['image-33'], 60, py-12, 43, 15);
+                    flash = [103, py-14];
+                    break;
+                case 12:
+                    image(images['image-34'], 60, py-13, 75, 15);
+                    flash = [120, py-14];
+                    
+                    break;
+            }
+            if(guntype===1||equipped===8){
+                image(images['image-8'], 60, py-5, 21, 7);
+            }
+            if(guntype>=2&&equipped!==8){
+                fill(36, 36, 36);
+                pushMatrix();
+                translate(62, py-9);
+                rotate(40);
+                rect(0, 0, 13, 7);
+                popMatrix();
+                pushMatrix();
+                translate(66, py+0);
+                rotate(-34);
+                image(images['image-8'], 0, 0, 15, 7);
+                popMatrix();
+            }
+            if(mouseY>430){
+                py = mouseY;
+            }
+            image(images['image-2'], 0, 0, 600, 600);
+            txt(423+random(-0.3, 0.3), 54+random(-0.3, 0.3), 50, "Health:"+floor(playerhealth));
+            txt(226+random(-0.3, 0.3), 123+random(-0.3, 0.3), 70, "Kills:"+kills);
+            if(kills>killrecord){
+                txt(373+random(-0.3, 0.3), 75+random(-0.3, 0.3), 30, "NEW!");
+            }
+            if(ammo===0){
+               txt(23+random(-0.3, 0.3), 54+random(-0.3, 0.3), 50, "Ammo:Reloading..."); 
+               reload++;
+            }
+            else{
+                txt(23+random(-0.3, 0.3), 54+random(-0.3, 0.3), 50, "Ammo:"+ammo);
+            }
+            if(reload===reloadtime){
+                ammo = ammoamount;
+                reload = 0;
+            }
+            if(playerhealth>100&&bonus!==1){
+                playerhealth = 100;
+            }
+            if(playerhealth>150&&bonus===1){
+                playerhealth = 150;
+            }
+            fill(5, 66, 14);
+            rect(335, 19, 5, 30, 7);
+            rect(325, 30, 50, 30, 7);
+            rect(335, 19, 30, 5, 7);
+            fill(255, 0, 0);
+            rect(350, 30, 25, 30, 0, 7, 7, 0);
+            rect(350, 19, 15, 5, 0, 7, 7, 0);
+            rect(360, 19, 5, 30, 7);            
+            fill(255, 255, 255);
+            ellipse(350, 45, 25, 25);
+            if(firstaidkit[0]+firstaidkit[1]+firstaidkit[2]>0){
+                ellipse(375, 30, 15, 15);
+                fill(255, 0, 0);
+                textFont(createFont("monospace"), 14);
+                text(firstaidkit[0]+firstaidkit[1]+firstaidkit[2], 371, 35);
+            }
+            if(firstaidkit[3]+firstaidkit[4]+firstaidkit[5]>0){
+                fill(255, 255, 255);
+                ellipse(325, 30, 15, 15);
+                fill(255, 0, 0);
+                textFont(createFont("monospace"), 14);
+                text(firstaidkit[3]+firstaidkit[4]+firstaidkit[5], 321, 35);
+                if(playerhealth<=20) {
+                    if(bonus!==0) {
+                        playerhealth+=50;
+                    }
+                    if(bonus===0||Save_Code[33]===1) {
+                        playerhealth = 100;
+                    }
+                    if(firstaidkit[5]===1) {
+                        firstaidkit[5] = 0;
+                    }
+                    else if(firstaidkit[4]===1&&firstaidkit[5]===0) {
+                        firstaidkit[4] = 0;
+                    }
+                    else if(firstaidkit[3]===1&&firstaidkit[4]===0&&firstaidkit[5]===0) {
+                        firstaidkit[3] = 0;
+                    }
+                }
+            }
+            fill(255, 0, 0);
+            rect(346, 34.5, 8, 20, 7);
+            rect(340, 40, 20, 8, 7);
+            if(totalzombieskilled<=0&&rank<5){
+                rank++;
+                switch(rank) {
+                    case 2:
+                        totalzombieskilled = 150;
+                        break;
+                    case 3:
+                        totalzombieskilled = 200;
+                        break;
+                    case 4:
+                        totalzombieskilled = 300;
+                        break;
+                }
+                
+            }
+            if(hash(Subscriber)===28&&playerhealth<100&&bonus!==1){
+                playerhealth+=0.03;
+            }
+            if(hash(Subscriber)===28&&playerhealth<150&&bonus===1){
+                playerhealth+=0.03;
+            }
+            if(shooting===true) {
+                image(images['image-29'], flash[0], flash[1], 12, 12);
+            }
+            }
+            break;
+        case "stats":
+            {
+            playtime = 0;
+            reload = 0;
+            ammo = ammoamount;
+            if(bonus!==2){
+                addmoney = kills*10;
+            }
+            if(bonus===2){
+                addmoney = kills*20;
+            }
+            if(scorecount===0){
+                money+=addmoney;
+            }
+            if(kills>killrecord){
+                killrecord = kills;
+            }
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            txt(70, 150, 100, "Aw, Snap");
+            txt(85, 256, 68, "They got past you\nbut hey you killed "+kills+"!\nYour Record:"+killrecord);
+            displayAwSnap(374, 58, 8);
+            menubutton.draw();
+            scorecount++;
+            }
+            break;
+        case "MODS":
+            {
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            txt(215, 100, 100, "MODS");
+            txt(50, 200, 50, "Unlimted Bullets");
+            txt(50, 260, 50, "Complete Heal");
+            txt(50, 320, 50, "1 Shot Kills");
+            txt(50, 380, 50, "Unlimted Money");
+            textFont(createFont("monospace"), 35);
+            if(mouseX>=310&&mouseY>=170&&mouseX<=378&&mouseY<=205) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                rect(310, 170, 68, 35);
+                if(mouseIsPressed&&clicktime>10) {
+                    Save_Code[32]++;
+                    clicktime = 0;
+                }
+            }
+            if(Save_Code[32]>1) {
+                Save_Code[32] = 0;
+            }
+            if(Save_Code[32]===0) {
+                fill(255, 0, 0);
+                text("Off", 315, 200);
+            }
+            else if(Save_Code[32]===1) {
+                fill(0, 255, 30);
+                text("On", 315, 200);
+            }
+            if(mouseX>=310&&mouseY>=230&&mouseX<=378&&mouseY<=265) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                rect(310, 230, 68, 35);
+                if(mouseIsPressed&&clicktime>10) {
+                    Save_Code[33]++;
+                    clicktime = 0;
+                }
+            }
+            if(Save_Code[33]>1) {
+                Save_Code[33] = 0;
+            }
+            if(Save_Code[33]===0) {
+                fill(255, 0, 0);
+                text("Off", 315, 260);
+            }
+            else if(Save_Code[33]===1) {
+                fill(0, 255, 30);
+                text("On", 315, 260);
+            }
+            if(mouseX>=310&&mouseY>=290&&mouseX<=378&&mouseY<=320) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                rect(310, 290, 68, 35);
+                if(mouseIsPressed&&clicktime>10) {
+                    Save_Code[34]++;
+                    clicktime = 0;
+                }
+            }
+            if(Save_Code[34]>1) {
+                Save_Code[34] = 0;
+            }
+            if(Save_Code[34]===0) {
+                fill(255, 0, 0);
+                text("Off", 315, 320);
+            }
+            else if(Save_Code[34]===1) {
+                fill(0, 255, 30);
+                text("On", 315, 320);
+            }
+            if(mouseX>=310&&mouseY>=350&&mouseX<=378&&mouseY<=385) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                rect(310, 350, 68, 35);
+                if(mouseIsPressed&&clicktime>10) {
+                    Save_Code[35]++;
+                    clicktime = 0;
+                }
+            }
+            if(Save_Code[35]>1) {
+                Save_Code[35] = 0;
+            }
+            if(Save_Code[35]===0) {
+                fill(255, 0, 0);
+                text("Off", 315, 380);
+            }
+            else if(Save_Code[35]===1) {
+                fill(0, 255, 30);
+                text("On", 315, 380);
+            }
+            menubutton.draw();
+            if(dist(mouseX, mouseY, 557, 438)<=4&&mouseIsPressed){
+                money = 1000000;
+                rank = 6;
+                sniperrifle = true;
+                Subscriber = 231115;// TODO: manually override this instead of hacking your program this way.
+            }
+            }
+            break;
+        case "market":
+            {
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            textAlign(CENTER, CENTER);
+            mt(300, 100, 70, "MARKET");
+            if(mouseX>=170&&mouseX<=400&&mouseY>=175&&mouseY<=475) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                stroke(255, 255, 255);
+                strokeWeight(3);
+                if(mouseY>=175&&mouseY<=225) {
+                    rect(170, 175, 260, 50);
+                }
+                if(mouseY>225&&mouseY<=275) {
+                    rect(170, 225, 260, 50);
+                }
+                if(mouseY>275&&mouseY<=325) {
+                    rect(170, 275, 260, 50);
+                }
+                if(mouseY>325&&mouseY<=375) {
+                    rect(170, 325, 260, 50);
+                }
+                if(mouseY>375&&mouseY<=425) {
+                    rect(170, 375, 260, 50);
+                }
+                if(mouseY>425&&mouseY<=475) {
+                    rect(170, 425, 260, 50);
+                }
+                noStroke();
+            }
+            if(mouseX>=220&&mouseY>=515&&mouseX<=380&&mouseY<=565) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                stroke(255, 255, 255);
+                strokeWeight(3);
+                rect(220, 515, 160, 50);
+                noStroke();
+                if(mouseIsPressed) {
+                    secondscreen = "menu";
+                    tran = true;
+                }
+            }
+            mt(300, 200, 40, "Pistols");
+            mt(300, 250, 40, "Rifles");
+            mt(300, 300, 40, "Machine Guns");
+            mt(300, 350, 40, "Crates");
+            mt(300, 400, 40, "First Aid");
+            mt(300, 450, 40, "Soldiers");
+            mt(300, 540, 40, "Back");
+            textAlign(LEFT);
+            break;
+            }
+        case "pistols":
+            {
+            info = ["", "", "", "", ""];
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            if(mouseX>=14&&mouseY>=100&&mouseX<=104&&mouseY<=139) {
+                    cursor("pointer");
+                    fill(255, 255, 255, 100);
+                    stroke(255, 255, 255);
+                    strokeWeight(3);
+                    rect(14, 100, 80, 39);
+                    if(mouseIsPressed) {
+                        screen = "market";
+                    }
+                }
+            textAlign(CENTER, CENTER);
+            mt(300, 50, 70, "PISTOLS");  
+            buygun(300, 200, "Revolver", 1, 140, 6, 0, 0, 1);
+            buygun(300, 250, "WIST-94", 1, 120, 12, 450, 1, 1);
+            buygun(300, 300, "Colt 1911", 1, 100, 16, 750, 2, 2);
+            buygun(300, 350, "TP-82", 1, 100, 20, 900, 3, 3);
+            textAlign(LEFT);
+            mt(10, 470, 30, "Reload Time:"+floor(info[0]/60)+" seconds");
+            mt(10, 510, 30, "Ammo:"+info[1]);
+            mt(10, 550, 30, "Cost:"+info[2]);
+            mt(10, 590, 30, "Required Rank:"+info[3]);
+            image(images['image-12'], 240, 562, 30, 30);
+            ranker();
+            switch(info[4]){
+                case 0:
+                    image(images['image-23'], 356, 470, 170, 100);
+                    break;
+                case 1:
+                    image(images['image-22'], 356, 470, 170, 100);
+                    break;
+                case 2:
+                    image(images['image-21'], 356, 470, 170, 100);
+                    break;
+                case 3:
+                    image(images['image-24'], 356, 470, 170, 100);
+                    break;
+            }
+            }
+            break;
+        case "rifles":
+            {
+            info = ["", "", "", "", ""];
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            if(mouseX>=14&&mouseY>=100&&mouseX<=104&&mouseY<=139) {
+                    cursor("pointer");
+                    fill(255, 255, 255, 100);
+                    stroke(255, 255, 255);
+                    strokeWeight(3);
+                    rect(14, 100, 80, 39);
+                    if(mouseIsPressed) {
+                        screen = "market";
+                    }
+                }
+            textAlign(CENTER, CENTER);
+            mt(300, 50, 70, "RIFLES");  
+            buygun(300, 200, "CZ 511", 2, 150, 20, 700, 4, 1);
+            buygun(300, 250, "MAS-36", 2, 220, 35, 1500, 5, 2);
+            buygun(300, 300, "Ruger 77", 2, 230, 40, 1650, 6, 3);
+            buygun(300, 350, "AR-15", 2, 180, 100, 2750, 9, 4);
+            buygun(300, 400, "Sniper", 2, 65, 1, 0, 12, 5);
+            textAlign(LEFT);
+            mt(10, 470, 30, "Reload Time:"+floor(info[0]/60)+" seconds");
+            mt(10, 510, 30, "Ammo:"+info[1]);
+            mt(10, 550, 30, "Cost:"+info[2]);
+            mt(10, 590, 30, "Required Rank:"+info[3]);
+            image(images['image-12'], 240, 562, 30, 30);
+            ranker();
+            switch(info[4]){
+                case 4:
+                    image(images['image-25'], 326, 500, 250, 80);
+                    break;
+                case 5:
+                    image(images['image-26'], 326, 500, 250, 80);
+                    break;
+                case 6:
+                    image(images['image-27'], 321, 500, 260, 80);
+                    break;
+                case 9:
+                    image(images['image-31'], 321, 500, 260, 80);
+                    break;
+                case 12:
+                    image(images['image-34'], 316, 500, 270, 80);
+                    break;
+            }
+            break;
+            }
+        case "machine guns":
+            {
+            info = ["", "", "", "", ""];
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            if(mouseX>=14&&mouseY>=100&&mouseX<=104&&mouseY<=139) {
+                    cursor("pointer");
+                    fill(255, 255, 255, 100);
+                    stroke(255, 255, 255);
+                    strokeWeight(3);
+                    rect(14, 100, 80, 39);
+                    if(mouseIsPressed) {
+                        screen = "market";
+                    }
+                }
+            textAlign(CENTER, CENTER);
+            mt(300, 50, 41, "MACHINE GUNS");  
+            buygun(300, 200, "AK 47", 3, 235, 100, 1750, 7, 3);
+            buygun(300, 250, "Uzi", 3, 125, 40, 2000, 8, 3);
+            buygun(300, 300, "M4", 3, 200, 150, 3500, 10, 4);
+            buygun(300, 350, "LMG", 3, 230, 350, 5000, 11, 5);
+            textAlign(LEFT);
+            mt(10, 470, 30, "Reload Time:"+floor(info[0]/60)+" seconds");
+            mt(10, 510, 30, "Ammo:"+info[1]);
+            mt(10, 550, 30, "Cost:"+info[2]);
+            mt(10, 590, 30, "Required Rank:"+info[3]);
+            image(images['image-12'], 240, 562, 30, 30);
+            ranker();
+            switch(info[4]){
+                case 7:
+                     image(images['image-28'], 317, 500, 260, 80);
+                    break;
+                case 8:
+                    image(images['image-30'], 385, 480, 130, 100);
+                    break;
+                case 10:
+                    image(images['image-32'], 317, 480, 260, 100);
+                    break;
+                case 11:
+                    image(images['image-33'], 317, 480, 260, 100);
+                    break;
+            }
+            }
+            break;
+        case "first aid":
+            {
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            if(mouseX>=14&&mouseY>=100&&mouseX<=104&&mouseY<=139) {
+                    cursor("pointer");
+                    fill(255, 255, 255, 100);
+                    stroke(255, 255, 255);
+                    strokeWeight(3);
+                    rect(14, 100, 80, 39);
+                    noStroke();
+                    if(mouseIsPressed) {
+                        screen = "market";
+                    }
+                }
+            textAlign(CENTER, CENTER);
+            mt(300, 50, 70, "First Aid");
+            buyKit(300, 200, "manuel", 500, 0);
+            buyKit(300, 260, "manuel", 750, 1);
+            buyKit(300, 320, "manuel", 1000, 2);
+            buyKit(300, 380, "auto", 1250, 3);
+            buyKit(300, 440, "auto", 1750, 4);
+            buyKit(300, 500, "auto", 2250, 5);
+            textAlign(LEFT);
+            ranker();
+            }
+            break;
+        case "crates":
+            {
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            if(mouseX>=14&&mouseY>=100&&mouseX<=104&&mouseY<=139) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                stroke(255, 255, 255);
+                strokeWeight(3);
+                rect(14, 100, 80, 39);
+                if(mouseIsPressed) {
+                    screen = "market";
+                }
+            }
+            mt(163, 74, 80, "Crates");
+            mt(20, 130, 30, "Back");
+            ranker();
+            Crate(10, 170, 130, color(46, 231, 255));
+            Crate(158, 170, 130, color(250, 250, 53));
+            Crate(306, 170, 130, color(38, 255, 52));
+            Crate(454, 170, 130, color(255, 23, 23));
+            textSize(20);
+            fill(46, 231, 255);
+            text("1 star -%60", 20, 323);
+            text("1 star -%50", 170, 323);
+            text("1 star -%40", 320, 323);
+            text("1 star -%10", 470, 323);
+            fill(250, 250, 53);
+            text("2 star -%30", 20, 343);
+            text("2 star -%40", 170, 343);
+            text("2 star -%20", 320, 343);
+            text("2 star -%40", 470, 343);
+            fill(38, 255, 52);
+            text("3 star -%10", 20, 363);
+            text("3 star -%5", 170, 363);
+            text("3 star -%30", 320, 363);
+            text("3 star -%30", 470, 363);
+            fill(255, 23, 23);
+            text("4 star -%0", 20, 383);
+            text("4 star -%5", 170, 383);
+            text("4 star -%10", 320, 383);
+            text("4 star -%20", 470, 383);
+            fill(148, 148, 148);
+            rect(13, 390, 125, 40, 30);
+            rect(163, 390, 125, 40, 30);
+            rect(313, 390, 125, 40, 30);
+            rect(463, 390, 125, 40, 30);
+            textSize(30);
+            fill(0, 0, 0);
+            if(bonus!==5){
+                text("$800", 40, 419);
+                text("$1200", 179, 419);
+                text("$1500", 331, 419);
+                text("$2000", 481, 419);
+            }
+            if(bonus===5){
+                text("$400", 40, 419);
+                text("$600", 179, 419);
+                text("$750", 331, 419);
+                text("$1000", 481, 419);
+            }
+            if(mouseX>=13&&mouseY>=390&&mouseX<=128&&mouseY<=430&&clicktime>=10){
+                cursor("pointer");
+            }
+            if(mouseX>=163&&mouseY>=390&&mouseX<=288&&mouseY<=430&&clicktime>=10){
+                cursor("pointer");
+            }
+            if(mouseX>=313&&mouseY>=390&&mouseX<=438&&mouseY<=430&&clicktime>=10){
+                cursor("pointer");
+            }
+            if(mouseX>=463&&mouseY>=390&&mouseX<=588&&mouseY<=430&&clicktime>=10){
+                cursor("pointer");
+            }
+            }
+            break;
+        case "open":
+            {
+            image(images['image-10'], 0, 0, 600, 600);
+            Crate(180, 310, 250, opencrate[0]);
+            textSize(58);
+            fill(0, 0, 0);
+            if(opencrate[3]===false){
+                text("Tap to open",115, 100);
+            }
+            if(mouseIsPressed&&opencrate[3]===false&&clicktime>=10){
+                opencrate[3] = true;
+            }
+            if(opencrate[3]===true){
+                fill(255, 255, 255);
+                ellipse(300, 400, opencrate[4], opencrate[6]);
+                opencrate[4]+=3;
+                opencrate[6]+=3;
+                opencrate[4]+=random(-4, 2);
+                opencrate[6]+=random(-4, 2);
+                if(opencrate[4]>=350){
+                    opencrate[3] = 0;
+                    opencrate[1] = floor(random(1, 101));
+                    if(opencrate[0]===color(46, 231, 255)){
+                        if(opencrate[1]<=30&&purchased[1]===false){
+                            opencrate[2] = "WIST-94";
+                            purchased[1] = true;
+                        }
+                        else if(opencrate[1]>60&&opencrate[1]<=75){
+                            opencrate[2] = "Colt 1911";
+                            purchased[2] = true;
+                        }
+                        else if(opencrate[1]>90&&opencrate[1]<=93){
+                            opencrate[2] = "TP-82";
+                            purchased[3] = true;
+                        }
+                        else if(opencrate[1]>30&&opencrate[1]<=60){
+                            opencrate[2] = "CZ 511";
+                            purchased[4] = true;
+                        }
+                        else if(opencrate[1]>75&&opencrate[1]<=90){
+                            opencrate[2] = "MAS-36";
+                            purchased[5] = true;
+                        }
+                        else if(opencrate[1]>94&&opencrate[1]<=96){
+                            opencrate[2] = "Ruger 77";
+                            purchased[6] = true;
+                        }
+                        else if(opencrate[1]>99){
+                            opencrate[2] = "AK 47";
+                            purchased[7] = true;
+                        }
+                        else if(opencrate[1]>96&&opencrate[1]<=98){
+                            opencrate[2] = "Uzi";
+                            purchased[8] = true;
+                        }
+                        else {
+                            opencrate[1] = floor(random(1, 101));
+                        }
+                    }
+                    if(opencrate[0]===color(250, 250, 53)){
+                        if(opencrate[1]<=25){
+                            opencrate[2] = "WIST-94";
+                            purchased[1] = true;
+                        }
+                        else if(opencrate[1]>50&&opencrate[1]<=70){
+                            opencrate[2] = "Colt 1911";
+                            purchased[2] = true;
+                        }
+                        else if(opencrate[1]>90&&opencrate[1]<=92){
+                            opencrate[2] = "TP-82";
+                            purchased[3] = true;
+                        }
+                        else if(opencrate[1]>25&&opencrate[1]<=50){
+                            opencrate[2] = "CZ 511";
+                            purchased[4] = true;
+                        }
+                        else if(opencrate[1]>70&&opencrate[1]<=90){
+                            opencrate[2] = "MAS-36";
+                            purchased[5] = true;
+                        }
+                        else if(opencrate[1]===93){
+                            opencrate[2] = "Ruger 77";
+                            purchased[6] = true;
+                        }
+                        else if(opencrate[1]===95){
+                            opencrate[2] = "AK 47";
+                            purchased[7] = true;
+                        }
+                        else if(opencrate[1]===94){
+                            opencrate[2] = "Uzi";
+                            purchased[8] = true;
+                        }
+                        else if(opencrate[1]>96&&opencrate[1]<=99){
+                            opencrate[2] = "AR-15";
+                            purchased[9] = true;
+                        }
+                        else if(opencrate[1]>99){
+                            opencrate[2] = "M4";
+                            purchased[10] = true;
+                        }
+                    }
+                    if(opencrate[0]===color(38, 255, 52)){
+                        if(opencrate[1]<=20){
+                            opencrate[2] = "WIST-94";
+                            purchased[1] = true;
+                        }
+                        else if(opencrate[1]>40&&opencrate[1]<=50){
+                            opencrate[2] = "Colt 1911";
+                            purchased[2] = true;
+                        }
+                        else if(opencrate[1]>60&&opencrate[1]<=68){
+                            opencrate[2] = "TP-82";
+                            purchased[3] = true;
+                        }
+                        else if(opencrate[1]>20&&opencrate[1]<=40){
+                            opencrate[2] = "CZ 511";
+                            purchased[4] = true;
+                        }
+                        else if(opencrate[1]>50&&opencrate[1]<=60){
+                            opencrate[2] = "MAS-36";
+                            purchased[5] = true;
+                        }
+                        else if(opencrate[1]>68&&opencrate[1]<=76){
+                            opencrate[2] = "Ruger 77";
+                            purchased[6] = true;
+                        }
+                        else if(opencrate[1]>76&&opencrate[1]<=83){
+                            opencrate[2] = "AK 47";
+                            purchased[7] = true;
+                        }
+                        else if(opencrate[1]>83&&opencrate[1]<=90){
+                            opencrate[2] = "Uzi";
+                            purchased[8] = true;
+                        }
+                        else if(opencrate[1]>90&&opencrate[1]<=95){
+                            opencrate[2] = "AR-15";
+                            purchased[9] = true;
+                        }
+                        else if(opencrate[1]>95){
+                            opencrate[2] = "M4";
+                            purchased[10] = true;
+                        }
+                    }
+                    if(opencrate[0]===color(255, 23, 23)){
+                        if(opencrate[1]<=5){
+                            opencrate[2] = "WIST-94";
+                            purchased[1] = true;
+                        }
+                        else if(opencrate[1]>10&&opencrate[1]<=30){
+                            opencrate[2] = "Colt 1911";
+                            purchased[2] = true;
+                        }
+                        else if(opencrate[1]>50&&opencrate[1]<=58){
+                            opencrate[2] = "TP-82";
+                            purchased[3] = true;
+                        }
+                        else if(opencrate[1]>5&&opencrate[1]<=10){
+                            opencrate[2] = "CZ 511";
+                            purchased[4] = true;
+                        }
+                        else if(opencrate[1]>30&&opencrate[1]<=50){
+                            opencrate[2] = "MAS-36";
+                            purchased[5] = true;
+                        }
+                        else if(opencrate[1]>58&&opencrate[1]<=66){
+                            opencrate[2] = "Ruger 77";
+                            purchased[6] = true;
+                        }
+                        else if(opencrate[1]>66&&opencrate[1]<=73){
+                            opencrate[2] = "AK 47";
+                            purchased[7] = true;
+                        }
+                        else if(opencrate[1]>73&&opencrate[1]<=80){
+                            opencrate[2] = "Uzi";
+                            purchased[8] = true;
+                        }
+                        else if(opencrate[1]>80&&opencrate[1]<=90){
+                            opencrate[2] = "AR-15";
+                            purchased[9] = true;
+                        }
+                        else if(opencrate[1]>90) {
+                            opencrate[2] = "M4";
+                            purchased[10] = true;
+                        }
+                    }
+                }
+            }
+            if(opencrate[3]===0){
+                image(images['image-10'], 0, 0, 600, 600);
+                fill(255, 255, 255, opencrate[5]);
+                opencrate[5]-=7;
+                rect(0, 0, 600, 600);
+                textSize(40);
+                fill(0, 0, 0);
+                textAlign(CENTER, CENTER);
+                text("You unlocked the "+opencrate[2], 300, 100);
+                textAlign(LEFT);
+                switch(opencrate[2]){
+                case "WIST-94":
+                    image(images['image-22'], 200, 250, 250, 150);
+                    break;
+                case "Colt 1911":
+                    image(images['image-21'], 200, 250, 250, 150);
+                    break;
+                case "TP-82":
+                    image(images['image-24'], 150, 250, 300, 150);
+                    break;
+                case "CZ 511":
+                    image(images['image-25'], 115, 304, 400, 100);
+                    break;
+                case "MAS-36":
+                    image(images['image-26'], 115, 304, 400, 100);
+                    break;
+                case "Ruger 77":
+                    image(images['image-27'], 105, 304, 420, 100);
+                    break;
+                case "AK 47":
+                    image(images['image-28'], 100, 304, 420, 100);
+                    break;
+                case "Uzi":
+                    image(images['image-30'], 150, 250, 300, 200);
+                    break;
+                case "AR-15":
+                    image(images['image-31'], 100, 304, 420, 100);
+                    break;
+                case "M4":
+                    image(images['image-32'], 120, 304, 360, 115);
+                    break;
+            }
+                if(mouseIsPressed&&opencrate[5]<=0){
+                    clicktime = 0;
+                    tran = true;
+                    secondscreen = "crates";
+                    opencrate[0] = color(0, 0, 0);
+                    opencrate[1] = 0;
+                    opencrate[2] = "none";
+                    opencrate[3] = false;
+                    opencrate[4] = 0;
+                    opencrate[5] = 255;
+                    opencrate[6] = 0;
+                }
+            }
+            if(opencrate[0]===color(0, 0, 0)){
+                image(images['image-10'], 0, 0, 600, 600);
+            }
+            }
+            break;
+        case "soldiers":
+            {
+            image(images['image-1'], 0, 0, 600, 600);
+            image(images['image-2'], 0, 0, 600, 600);
+            if(mouseX>=14&&mouseY>=100&&mouseX<=104&&mouseY<=139) {
+                cursor("pointer");
+                fill(255, 255, 255, 100);
+                stroke(255, 255, 255);
+                strokeWeight(3);
+                rect(14, 100, 80, 39);
+                noStroke();
+                if(mouseIsPressed) {
+                    screen = "market";
+                }
+            }
+            ranker();
+            textAlign(CENTER, CENTER);
+            mt(300, 50, 50, "SOLDIERS");
+            mt(270, 557, 30, "Required Rank:5");
+            image(images['image-12'], 391, 540, 30, 30);
+            if(soldiers[0]===false) {
+                if(mouseX>=125&&mouseY>=175&&mouseX<=250&&mouseY<=525) {
+                    cursor("pointer");
+                    fill(255, 255, 255, 100);
+                    stroke(255, 255, 255);
+                    strokeWeight(3);
+                    rect(125, 175, 125, 350);
+                    noStroke();
+                    if(mouseIsPressed&&money>=10000&&soldiers[0]===false&&clicktime>10) {
+                        money-=10000;
+                        soldiers[0] = true;
+                        clicktime = 0;
+                    }
+                    if(mouseIsPressed&&money>10000&&soldiers[0]===false&&clicktime>10&&Save_Code[35]===1) {
+                        soldiers[0] = true;
+                        clicktime = 0;
+                    }
+                }
+                pushMatrix();
+                translate(140, 355);
+                rotate(270);
+                mt(0, 0, 25, "Private Hill: Colt 1911");
+                mt(0, 95, 25, "$10000");
+                popMatrix();
+                image(images['image-35'], 150, 200, 80, 80);
+                fill(7, 48, 4);
+                rect(160, 280, 60, 120);
+                image(images['image-15'], 175, 290, 30, 100);
+                image(images['image-36'], 170, 400, 40, 100);
+            }
+            if(soldiers[1]===false) {
+                if(mouseX>=345&&mouseY>=175&&mouseX<=470&&mouseY<=525) {
+                    cursor("pointer");
+                    fill(255, 255, 255, 100);
+                    stroke(255, 255, 255);
+                    strokeWeight(3);
+                    rect(345, 175, 125, 350);
+                    noStroke();
+                    if(mouseIsPressed&&money>=10000&&soldiers[1]===false&&clicktime>10) {
+                        money-=10000;
+                        soldiers[1] = true;
+                        clicktime = 0;
+                    }
+                    if(mouseIsPressed&soldiers[1]===false&&clicktime>10&&Save_Code[35]===1) {
+                        soldiers[1] = true;
+                        clicktime = 0;
+                    }
+                }
+                pushMatrix();
+                translate(140, 355);
+                rotate(270);
+                mt(0, 220, 25, "Cadet Smith: WIST-94");
+                mt(0, 315, 25, "$8000");
+                popMatrix();
+                image(images['image-7'], 370, 200, 80, 80);
+                fill(0, 0, 0);
+                rect(380, 280, 60, 120);
+                pushMatrix();
+                translate(427, 293);
+                rotate(90);
+                image(images['image-8'], 0, 0, 100, 30);
+                popMatrix();
+                image(images['image-9'], 390, 400, 40, 100);
+            }
+            textAlign(LEFT);
+            }
+            break;
+        case "short":
+            {
+            shorttimer++;
+            noStroke();
+            image(images['image-13'], 0, 0, 600, 600);
+            image(images['image-18'], 100, 386, 400, 100);
+            image(images['image-7'], 157, 170, 80, 80);
+            fill(0, 0, 0);
+            rect(165, 250, 55, 100);
+            pushMatrix();
+            translate(205, 256);
+            rotate(84);
+            image(images['image-8'], 0, 0, 89, 25);
+            popMatrix();
+            image(images['image-9'], 169, 350, 40, 100);
+            if(shorttimer<1000){
+                image(images['image-14'], 363, 170, 80, 80);
+                fill(15, 56, 7);
+                rect(376, 250, 55, 100);
+                pushMatrix();
+                translate(399, 256);
+                rotate(22);
+                image(images['image-15'], 0, 0, 25, 89);
+                image(images['image-18'], 0, 40, 25, 12);
+                popMatrix();
+                image(images['image-16'], 384, 350, 40, 100);
+            }
+            fill(0, 0, 0);
+            for(var i = -28; i<600; i+=100){
+                rect(i+4, 583, 65, 25);
+                image(images['image-17'], i, 503, 80, 80);
+            }
+            textFont(createFont("monospace"), 13);
+            if(shorttimer>=20&&shorttimer<=350){
+                fill(255, 255, 255);
+                rect(218, 50, 200, 100, 30);
+                triangle(234, 141, 357, 232, 310, 148);
+                fill(0, 0, 0);
+                text("Congratulations soldier!\nToday you have now been \npromototed to a Five Star\nSoldier.", 225, 68);
+            }
+            if(shorttimer>=360&&shorttimer<=460){
+                fill(255, 255, 255);
+                rect(218, 50, 200, 100, 30);
+                triangle(402, 141, 250, 232, 316, 148);
+                fill(0, 0, 0);
+                text("Thank You General Wallace.", 225, 68);
+            }
+            if(shorttimer>=470&&shorttimer<=670){
+                fill(255, 255, 255);
+                rect(218, 50, 200, 100, 30);
+                triangle(234, 141, 357, 232, 310, 148);
+                fill(0, 0, 0);
+                text("These are now your men.\nAnd I give you the\nSniper Rifle. May you\nnever miss your mark.", 225, 68);
+            }
+            if(shorttimer>=680&&shorttimer<=970){
+                fill(255, 255, 255);
+                rect(218, 50, 200, 100, 30);
+                triangle(402, 141, 250, 232, 316, 148);
+                fill(0, 0, 0);
+                text("Thank You Sir. I will lead\nthese men to triumph over\nthe Infected. And wil not\nstop until the world is\nrestored.", 225, 68);
+            }
+            if(shorttimer>=1100&&shorttimer<=1400){
+                image(images['image-14'], 363, 240, 80, 80);
+                fill(15, 56, 7);
+                rect(376, 320, 55, 100);
+                image(images['image-15'], 392, 330, 25, 89);
+                image(images['image-18'], 392, 361, 25, 12); 
+                image(images['image-19'], 384, 420, 40, 50);
+                pushMatrix();
+                translate(424, 470);
+                rotate(-90);
+                image(images['image-20'], 0, 0, 40, 50);
+                popMatrix();
+                fill(179, 0, 0);
+                ellipse(383, 350, 8, 12);
+                fill(255, 255, 255);
+                rect(218, 50, 200, 100, 30);
+                triangle(234, 141, 357, 232, 310, 148);
+                fill(0, 0, 0);
+                text("WHY! WHY!\nWe have to kill you to save you.", 225, 68);
+            }
+            if(shorttimer>=1401){
+                pushMatrix();
+                translate(0, 810);
+                rotate(-88);
+                image(images['image-14'], 363, 170, 80, 80);
+                fill(15, 56, 7);
+                rect(376, 250, 55, 100);
+                pushMatrix();
+                translate(399, 256);
+                rotate(22);
+                image(images['image-15'], 0, 0, 25, 89);
+                image(images['image-18'], 0, 40, 25, 12);
+                popMatrix();
+                image(images['image-16'], 384, 350, 40, 100);
+                fill(179, 0, 0);
+                ellipse(383, 276, 8, 12);
+                popMatrix();
+            }
+            if(shorttimer>470){
+                pushMatrix();
+                translate(149, 328);
+                rotate(-15);
+                image(images['image-34'], 0, 0, 220, 60);
+                popMatrix();
+                pushMatrix();
+                translate(205, 256);
+                rotate(84);
+                image(images['image-8'], 0, 0, 89, 25);
+                popMatrix();
+                cursor("none");
+                noFill();
+                stroke(255, 0, 0);
+                strokeWeight(2);
+                ellipse(mouseX, mouseY, 20, 20);
+                fill(255, 0, 0);
+                noStroke();
+                rect(mouseX-1, mouseY-20, 2, 15);
+                rect(mouseX-1, mouseY+5, 2, 15);
+                rect(mouseX-20, mouseY-1, 15, 2);
+                rect(mouseX+5, mouseY-1, 15, 2);
+                if(mouseX>=363&&mouseY>=170&&mouseX<=443&&mouseY<=450&&mouseIsPressed&&shorttimer<970){
+                    shorttimer = 1100;
+                }
+            }
+            if(shorttimer===990){
+                tran = true;
+                secondscreen = "menu";
+                sniperrifle = true;
+                clicktime = 0;
+            }
+            if(shorttimer===1500){
+                println("Congratulations, you won! And you recived $10000"); 
+                secondscreen = "Win";
+                tran = true;
+                sniperrifle = true;
+                clicktime = 0;
+                money+=10000;
+            }
+            }
+            break;
+        case "Win":
+            {
+            background(0, 0, 0);
+            fill(255, 255, 255);
+            textFont(createFont("monospace"), 50);
+            text("Congratulations!", 90, 180);
+            textSize(30);
+            text("You started a revolution\nand shut down W.A.R.D.\nNow the world is free from\nthere dominance.\n\nBut there creations aren't\ngone, yet. The world still\nneeds to be saved.", 90, 220);
+            if(mouseIsPressed&&clicktime>=20){
+                secondscreen = "menu";
+                tran = true;
+            }
+            }
+            break;
+    }
+    if(tran===true){
+        fill(0, 0, 0);
+        arc(300, 300, 900, 900, swipe2, swipe);
+        swipe+=10;
+        if(swipe>=365){
+            swipe-=10;
+            screen = secondscreen;
+            swipe2+=10;
+        }
+        if(swipe2>=360){
+            tran = false;
+            swipe = 0;
+            swipe2 = 0;
+        }
+    }
+    if(keyCode===48){
+        bonus = 0;
+    }
+    if(keyCode===49){
+        bonus = 1;
+    }
+    if(keyCode===50){
+        bonus = 2;
+    }
+    if(keyCode===51){
+        bonus = 3;
+    }
+    if(keyCode===52){
+        bonus = 4;
+    }
+    if(keyCode===53){
+        bonus = 5;
+    }
+    if(keyCode===54){
+        bonus = 6;
+    }
+    if(keyCode===55){
+        bonus = 7;
+    }
+    if(hash(Subscriber)!==28&&Subscriber!==false){
+        throw{
+            message : "You don't have the code!"
+        };
+    }
+};
