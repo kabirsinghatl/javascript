@@ -1,0 +1,697 @@
+**
+ * HOW DOES THIS HAVE MORE SPIN-OFFS THEN VOTES!!!???
+ * Made By Team Alpha
+ * credits:
+ * buttons - Programming King
+ * extremely cool background - Vortex Ninja
+ * projectile graphics - panth3r, knight rider
+ * projectile movement - Programming king
+ * menu - leaferstudios, knight rider, Programming king
+ * snow - Programming King
+ * story - Twiga Studio, Count Bleck
+ * lose screen - Vortex Ninja, Knight Rider
+ * collisions - homeschoolgunk, TheMoneyLord
+ * player graphic - knight rider
+ * player implementatiion - TheMoneyLord
+ * leaderboard - leaferstudios
+ * sound - Count Bleck
+ * player jumping - leaferstudios
+ * some bug fixes - Programming King, leaferstudios
+ * do something to make this game better, and get on the credits
+ * list
+ * THERE ARE ONLY ALLOWED TO BE 7 PEOPLE ON THE LEADERBOARD
+ * updates:
+ * hitboxes fixed
+ * 
+ * 
+ **/
+// change to true for sound on the buttons
+var soundon = false;
+
+var leaderboard = ['1.Clovenbob - 45920','2.MadLamdan {∁し🛇Uժよ＠ዪĶ} - 36363','3.Fantastickill7 - 29298', '4.TheMoneyLord - 18257','5.stefan - 16334','6.Sam.Graz - 16200','7.Dragon King - 14860'];
+
+{
+var px = 69.46;
+var gravity = 0;
+var score = 0;
+var font = createFont("Kristen ITC");
+var ismouseclicked = false;
+var buttonangle = 0;
+var keys = [];
+var scene = 'menu';
+var killed = false;
+var y = 575;
+var playsound = function(){};
+}//vars
+
+if(soundon===true){
+    playsound = function(){
+        playSound(getSound("retro/whistle1"));
+    };
+}
+
+keyPressed = function(){
+    keys[keyCode] = true;
+};//key stuff
+
+keyReleased = function(){
+    keys[keyCode] = false;
+};//more key stuff
+
+var circlebutton = function(x, y, s, pg, txt){
+    
+    if(dist(mouseX, mouseY, x, y)<=s/2){
+        
+        if(ismouseclicked===true){
+            playsound();
+            scene = pg;
+        }
+        
+        else{
+            rectMode(CENTER);
+            fill(143, 98, 66);
+            noStroke();
+            pushMatrix();
+            translate(x, y);
+            rotate(buttonangle);
+            rect(0, 0, s+20, s+20);
+            popMatrix();
+            fill(255, 255, 255);
+            textAlign(CENTER, CENTER);
+            textFont(font, 45);
+            text(txt, x, y);
+            
+            if(buttonangle===360){
+                buttonangle = 0;
+            }
+            
+        }
+        
+    }
+    
+    else{
+        rectMode(CENTER);
+        fill(120, 72, 36);
+        noStroke();
+        pushMatrix();
+        translate(x, y);
+        rotate(buttonangle);
+        rect(0, 0, s, s);
+        popMatrix();
+        fill(255, 255, 255);
+        textAlign(CENTER, CENTER);
+        textFont(font, 40);
+        text(txt, x, y);
+        if(buttonangle===360){
+            buttonangle = 0;
+        }
+    }
+};//button
+
+{
+var player = function(){
+    pushMatrix();
+    
+    noStroke();
+    
+    fill(181, 175, 181);
+    rect(px, y, 46, 46, 10);//
+    fill(56, 56, 56);
+    rect(px, y + 21, 46, 13.8, 10);//
+    rect(px, y + 21, 46, 6.9);//
+        
+    fill(0, 0, 0);
+    ellipse(px -12.19, y + -3.45, 18.4, 18.4);//
+    ellipse(px + 12.19, y + -3.45, 18.4, 18.4);//    
+    fill(255, 255, 255);
+    ellipse(px + 11.5, y + -0.69, 6.9, 6.9);//
+    ellipse(px + - 10.35, y + -0.69, 6.9, 6.9);//  
+    
+    noFill();
+    stroke(0, 0, 0);
+    strokeWeight(0.92);
+    arc(px, y + 8, 6.9, 6.9, 45, 145);
+popMatrix();
+if (keys[LEFT]===true && px>0){px-=5;}
+if (keys[RIGHT]===true && px < 600){px+=5;}
+
+if (keys[UP]===true && y>550) {
+    gravity = -8;
+
+}
+
+y+=gravity;    
+gravity+=0.25;
+
+if (y > 550) {
+    gravity=0;
+}
+
+};
+
+}//player stuff (UNFINISHED)
+
+{
+var menuBg = function() {
+    
+    background(140, 186, 255);
+    fill(224, 224, 224);
+    rectMode(CORNER);
+    ellipse(750, 700, 1000, 700);
+    fill(255, 255, 255);
+    ellipse(73, 700, 1100, 700);
+    pushMatrix();
+    translate(14, -13);
+    scale(2);
+    strokeWeight(4);
+    stroke(171, 207, 41, 50);
+    popMatrix();
+    rectMode(CENTER);
+};
+var playBg = function(){
+    pushMatrix();
+    background(140, 186, 255);
+    noStroke();
+    scale(1.4);
+    translate(4,65);
+    fill(74, 47, 0);
+    rect(206,277,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-68,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-85,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(262,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-133,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(222, 222, 222);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-86,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(222,222,222);
+    triangle(181,276,256,277,214,77);
+    
+    translate(182,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(222,222,222);
+    triangle(181,276,256,277,214,77);
+    
+    translate(81,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(222,222,222);
+    triangle(181,276,256,277,214,77);
+    
+    fill(255, 255, 255);
+    rect(73,385,864,214);
+    scale(0.5);
+    translate(-263,267);
+    fill(255, 207, 74);
+    triangle(25,213,160,213,91,149);
+    stroke(255, 187, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    
+    fill(255, 207, 74);
+    rect(91,263,135,102,1);
+    
+    fill(120, 71, 39);
+    rect(90,277,46,73);
+    
+    
+    translate(209,0);
+    fill(255, 207, 74);
+    triangle(25,213,160,213,91,149);
+    stroke(255, 187, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    fill(255, 207, 74);
+    rect(95,263,135,102,1);
+    fill(120, 71, 39);
+    rect(97,277,46,73);
+    
+    translate(187,-1);
+    fill(255, 207, 74);
+    triangle(25,213,160,213,91,149);
+    stroke(255, 187, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    
+    fill(255, 207, 74);
+    rect(94,262,135,102,1);
+    
+    fill(120, 71, 39);
+    rect(96,276,46,73);
+    
+    
+    translate(209,0);
+    fill(255, 207, 74);
+    triangle(25,213,160,213,91,149);
+    stroke(255, 187, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    fill(255, 207, 74);
+    rect(93,262,135,102,1);
+    fill(120, 71, 39);
+    rect(96,276,46,73);
+    popMatrix();
+
+};
+}//background stuff
+
+{
+var Particle = function(position, velocity){
+    this.position = position;
+    this.velocity = velocity;
+};
+var particles = [];
+Particle.prototype.draw = function() {
+    ellipse(this.position.x, this.position.y, 5, 5);
+    this.position.add(this.velocity);
+};
+var drawparticles = function(){
+    fill(255, 255, 255);
+    particles.push(new Particle(new PVector(random(-200, 600), random(-200, 600)), new PVector(1, 3)));
+    particles.push(new Particle(new PVector(random(-200, 600), random(-200, 600)), new PVector(1.5, 3)));
+    
+    for(var particledraw = 0;particledraw<particles.length;particledraw++){
+        particles[particledraw].draw();
+        if(particles[particledraw].position.x>600||particles[particledraw].position.y>600){
+            particles.splice(particledraw, 1);
+        }
+    }
+};
+}//particles
+
+{
+    
+    
+var rockangle = 0;
+var drawRock = function(x, y, s) {
+    pushMatrix();
+    translate(x, y);
+    scale(s);
+    rotate(rockangle);
+    translate(-x, -y);
+    smooth();
+    noStroke();
+    fill(130, 130, 130);
+    translate(25, 20);
+    rect(x - 25, y - 25, 50, 50, 18);
+    translate(-25, -20);
+    stroke(71, 71, 71);
+    strokeWeight(10);
+    line(x - 5, y + 13, x - 11, y + 6);
+    line(x + 10, y + 13, x + 3, y + 2);
+    line(x, y - 14, x - 17, y - 4);
+    noStroke();
+    fill(130, 130, 130);
+    beginShape();
+    vertex(x + 29, y - 32);
+    vertex(x + 20, y - 15);
+    vertex(x - 17, y - 24);
+    endShape();
+    beginShape();
+    vertex(x + 25, y + 6);
+    vertex(x + 45, y + 17);
+    vertex(x + 19, y - 19);
+    endShape();
+    beginShape();
+    vertex(x + 15, y + 20);
+    vertex(x - 8, y + 18);
+    vertex(x - 16, y + 43);
+    endShape();
+    beginShape();
+    vertex(x - 38, y - 24);
+    vertex(x - 24, y - 16);
+    vertex(x - 22, y + 17);
+    endShape();
+    popMatrix();
+};//spiky rock
+var KRsRock = function(x, y, s){
+    pushMatrix();
+    noStroke();
+    translate(x, y);
+    scale(s);
+    rotate(rockangle);
+    translate(-x, -y);
+    fill(145, 145, 145);
+    beginShape();
+    vertex(x - 27, y);
+    vertex(x + 5, y + 20);
+    vertex(x + 10, y + 48);
+    vertex(x + 38, y + 33);
+    vertex(x + 33, y + 4);
+    vertex(x + 12, y);
+    vertex(x - 26, y);
+    endShape();
+    
+    fill(194, 194, 194);
+    beginShape();
+    vertex(x - 27, y);
+    vertex(x - 21, y + 34);
+    vertex(x + 9, y + 48);
+    vertex(x + 5, y + 20);
+    vertex(x - 27, y);
+    endShape();
+    popMatrix();
+};//regular rock
+var Rock = function(x, y, s){
+    this.x = x;
+    this.y = y;
+    this.s = s;
+};
+var rocks = [];
+while(rocks.length < 8){
+    rocks.push(new Rock(random(0, 600), floor(random(-30, -300)), random(20, 60)));
+}
+}//rock stuff
+
+var lose = function(){
+    rectMode(CORNER);
+    
+    pushMatrix();
+    scale(1.5);
+    background(176, 243, 255);
+    noStroke();
+    
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-85,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-85,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(262,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(255, 255, 255);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-133,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(245, 245, 245);
+    triangle(181,276,256,277,214,77);
+    
+    translate(-86,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(245, 245, 245);
+    triangle(181,276,256,277,214,77);
+    
+    translate(182,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(245, 245, 245);
+    triangle(181,276,256,277,214,77);
+    
+    translate(81,3);
+    fill(74, 47, 0);
+    rect(206,273,29,47);
+    
+    fill(245, 245, 245);
+    triangle(181,276,256,277,214,77);
+    
+    fill(255, 255, 255);
+    rect(-181,315,454,102);
+    scale(0.5);
+    translate(-271,317);
+    fill(255, 191, 0);
+    triangle(25,213,160,213,91,149);
+    stroke(204, 150, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    
+    fill(255, 191, 0);
+    rect(25,213,135,102,1);
+    
+    fill(77, 58, 0);
+    rect(69,242,46,73);
+    
+    
+    translate(209,0);
+    fill(255, 191, 0);
+    triangle(25,213,160,213,91,149);
+    stroke(204, 150, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    fill(255, 191, 0);
+    rect(25,213,135,102,1);
+    fill(77, 58, 0);
+    rect(69,242,46,73);
+    
+    translate(187,-1);
+    fill(255, 191, 0);
+    triangle(25,213,160,213,91,149);
+    stroke(204, 150, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    
+    fill(255, 191, 0);
+    rect(25,213,135,102,1);
+    
+    fill(77, 58, 0);
+    rect(69,242,46,73);
+    
+    
+    
+    translate(209,0);
+    fill(255, 191, 0);
+    triangle(25,213,160,213,91,149);
+    stroke(204, 150, 0);
+    strokeWeight(12);
+    line(93,149,17,213);
+    line(93,149,169,213);
+    noStroke();
+    fill(255, 191, 0);
+    rect(25,213,135,102,1);
+    fill(77, 58, 0);
+    rect(69,242,46,73);
+    
+    
+    fill(255, 0, 0, 100);
+    rect(-608,-365,810,827);
+    
+    popMatrix();
+    
+    textFont(createFont("Kristen ITC"));
+        textSize(60);
+        fill(0, 0, 0);
+        text("Oops, You Died!", 300, 135);
+        textSize(40);
+        text("Your Score was "+score, 302, 213);
+        text("Spin - off Proof needed", 300, 298);
+        circlebutton(160, 450, 150, 'menu', "MENU");
+        circlebutton(440, 450, 150, 'play', "REPLAY");
+        drawparticles();
+         
+    if(scene==='play'||scene==='menu'){
+        score = 0;
+        killed = false;
+        rocks = [];
+
+while(rocks.length < 8){
+    rocks.push(new Rock(random(0, 600), floor(random(-30, -300)), random(20, 60)));
+}
+    }
+    buttonangle+=5;
+};
+
+var menu = function(){
+    menuBg();
+    circlebutton(300, 500, 125, 'play', "Play");
+    circlebutton(150, 500, 100, 'story', "Story");
+    circlebutton(450, 500, 100, 'lead', "Lead");
+    noFill();
+    strokeWeight(40);
+    stroke(176, 176, 176);
+    arc(300, 100, 380, 300, 0, 180);
+    noStroke();
+    fill(120, 72, 36);
+    arc(300, 280, 400, 400, 180, 360);
+    fill(255, 191, 0);
+    rect(300, 280, 420, 40, 10);
+    rect(300, 180, 40, 240, 10);noStroke();
+    
+    textFont(font, 100);
+    fill(255, 255, 255);
+    text("Viking", 300, 170);
+    textFont(font, 50);
+    text("Mayhem", 300, 228);
+    drawparticles();
+    buttonangle+=5;
+    
+};
+
+var play = function(){
+    if (killed ===false){
+        playBg();
+        for(var rock = 0;rock<rocks.length;rock++){
+            {
+            /*fill(163, 163, 163);
+        pushMatrix();
+        translate(rocks[rock].x, rocks[rock].y);
+        rotate(rockangle);
+        translate(-rocks[rock].x, -rocks[rock].y);
+        rect(rocks[rock].x, rocks[rock].y, rocks[rock].s, rocks[rock].s);
+        popMatrix();
+        */
+            drawRock(rocks[rock].x, rocks[rock].y, rocks[rock].s/40);
+            
+            rocks[rock].y+=3;
+            if(rocks[rock].y>630){
+                rocks.splice(rock, 1);
+                rocks.push(new Rock(random(0, 600), floor(random(-30, -300    )), random(20, 60)-0.03));
+            }
+            }
+            var Dist1 = dist(px, y, rocks[rock].x, rocks[rock].y);
+            var Dist2 = dist(px, y, rocks[rock].x, rocks[rock].y);
+            var Dist3 = dist(px, y, rocks[rock].x, rocks[rock].y);
+            var S = rocks[rock].s + (rocks[rock].s / 4.2);
+            if(Dist1 < S || Dist2 < S || Dist3 < S){
+                killed = true;
+                scene = 'lose';
+            }
+        }
+        
+        rockangle++;
+        drawparticles();
+        
+        fill(143, 98, 66);
+        rect(500, 50, 150, 40);
+        fill(255, 255, 255);
+        textSize(30);
+        text("score:"+score,500, 50);
+        popMatrix();
+        player(302);
+        score++;
+    }
+};
+
+var story = function(){
+    menuBg();
+    noStroke();
+    drawparticles();
+    textSize(25);
+    text(" The townspeople have allowed the vikings to live in their village for years, working near the mountains. What they didn't expect, was the vikings being able to plant explosives in the mines and detonate them. Now, the mountain has burst, spewing rock and debris everywhere. You are one of many villagers, and must dodge the falling rocks before it is too late", 10, 0, 580, 400);
+    circlebutton(300, 470, 125, 'menu', "BACK");   
+    buttonangle+=5;
+    
+};
+
+var lead = function(){
+    menuBg();
+    noStroke();
+    drawparticles();
+    circlebutton(500, 500, 120, 'menu', "BACK");
+    textAlign(CORNER, CORNER);
+    textFont(font);
+    textSize(20);
+    fill(0, 0, 0);
+    text('Leaderboard', 56, 34);
+    
+    for (var i = 0; i < leaderboard.length; i++) {
+        text(leaderboard[i], 30, 80*i+100);
+    }
+    buttonangle+=5;
+};
+
+draw = function() {
+   
+    
+    cursor("default");
+    switch(scene){
+        case 'menu':
+            menu();
+            break;
+        case 'play':
+            play();
+            break;
+        case 'story':    
+            story();
+            break;
+        case 'lead':
+            lead();
+            break;
+        case 'lose':
+            lose();
+            break;
+        
+    }
+    ismouseclicked = false;
+};
+
+mouseClicked = function(){
+        ismouseclicked = true;
+};
