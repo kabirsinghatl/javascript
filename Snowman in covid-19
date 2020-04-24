@@ -1,0 +1,19 @@
+mousePressed = function () {
+    //snow
+    fill(mouseX, mouseY, mouseY);
+    ellipse(mouseX, mouseY,15,15);
+};
+fill(255, 255, 255);
+ellipse(200, 300, 150, 150);
+ellipse(200, 200, 100, 100);
+ellipse(200, 120, 75, 75);
+fill(0, 0, 0);
+ellipse(183,110,10,10);
+ellipse(214,109,10,10);
+ellipse(197,183,15,15);
+ellipse(197,224,15,15);
+ellipse(197,269,15,15);
+arc(199, 132, 70, 51, 0, 182);
+fill(255, 190, 0);
+triangle(195, 120, 205, 120, 200, 140);
+
