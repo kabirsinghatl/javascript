@@ -1,0 +1,1475 @@
+// Change the color of the player!
+var pColor = color(255, 160, 185);
+
+// Make it nice
+smooth();
+
+// The high score
+var theHigh = {
+    name: "Michael",
+    score: 630
+};
+
+// Scenes
+var scene;
+var game, menu, over;
+
+// Font
+textFont(createFont("FreeSans"), 30);
+
+// Variables
+// {
+    var wallW = 150,
+        wallH = 60;
+    var playerSz = 65;
+    var coinSz = 30;
+    var playerLn = 1;
+    var playerX = 300;
+    var playerY = 500;
+    var playerR = 0;
+    var moved = false;
+    var speed = 5;
+    var wallDist = 0;
+    var coinDist = 0;
+    var wallSpace = 400;
+    var coinSpace = 45;
+    var addedWall = 0,
+        coinLn = 0,
+        coinAmt = 0;
+    var score = 0,
+        scoreY = 0,
+        highScore = 0;
+    var click, overButton;
+    var dead = false,
+        deathImg, imgSize = 0;
+    var instructionsY = 300,
+        readI = false;
+    var fade = 0,
+        loseFade = 0;
+    var loaded = loaded || false;
+    var bgImg1 = bgImg1 || undefined;
+    var bgImg2 = bgImg2 || undefined;
+    var quads = [];
+    for (var i = 0; i < 4; i++) {
+        quads.push(i * 25);
+    }
+    var messages = [
+        "Brainfreeze!",
+        "That was a wall...",
+        "You really like to eat ice!",
+        "A bit too ambitious..."
+    ];
+    var message;
+    var keys = [];
+// }
+
+// Objects in the game
+var objects = {
+    walls: [],
+    coins: [],
+    gems: [],
+    particles: []
+};
+
+/** Relativity Font **/
+// {
+    var titleWidths = {
+        "A": 70,
+        "B": 70,
+        "C": 70,
+        "D": 70,
+        "E": 60,
+        "F": 60,
+        "G": 70,
+        "H": 70,
+        "I": 50,
+        "J": 70,
+        "K": 70,
+        "L": 60,
+        "M": 110,
+        "N": 90,
+        "O": 70,
+        "P": 70,
+        "Q": 80,
+        "R": 70,
+        "S": 70,
+        "T": 70,
+        "U": 70,
+        "V": 80,
+        "W": 110,
+        "X": 60,
+        "Y": 80,
+        "Z": 60,
+        "!": 30,
+        " ": 40
+    };
+    
+    var titleDesigns = {
+        "A": function() {
+            beginShape();
+            vertex(0, 100);
+            vertex(0, 10);
+            vertex(10, 0);
+            vertex(30, 0);
+            vertex(40, 10);
+            vertex(40, 50);
+            vertex(0, 50);
+            vertex(40, 50);
+            vertex(40, 100);
+            endShape();
+        },
+        "B": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 90);
+            vertex(30, 90);
+            vertex(40, 80);
+            vertex(40, 60);
+            vertex(30, 50);
+            vertex(10, 50);
+            vertex(30, 50);
+            vertex(40, 40);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            endShape();
+        },
+        "C": function() {
+            beginShape();
+            vertex(40, 20);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            vertex(0, 10);
+            vertex(0, 80);
+            vertex(10, 90);
+            vertex(30, 90);
+            vertex(40, 80);
+            vertex(40, 70);
+            endShape();
+        },
+        "D": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 90);
+            vertex(30, 90);
+            vertex(40, 80);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            endShape();
+        },
+        "E": function() {
+            beginShape();
+            vertex(40, 0);
+            vertex(0, 0);
+            vertex(0, 50);
+            vertex(30, 50);
+            vertex(0, 50);
+            vertex(0, 90);
+            vertex(40, 90);
+            endShape();
+        },
+        "F": function() {
+            beginShape();
+            vertex(40, 0);
+            vertex(0, 0);
+            vertex(0, 50);
+            vertex(30, 50);
+            vertex(0, 50);
+            vertex(0, 100);
+            endShape();
+        },
+        "G": function() {
+            beginShape();
+            vertex(40, 20);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            vertex(0, 10);
+            vertex(0, 80);
+            vertex(10, 90);
+            vertex(30, 90);
+            vertex(40, 80);
+            vertex(40, 60);
+            vertex(20, 60);
+            endShape();
+        },
+        "H": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 50);
+            vertex(40, 50);
+            vertex(40, -10);
+            vertex(40, 100);
+            vertex(40, 50);
+            vertex(0, 50);
+            vertex(0, 100);
+            endShape();
+        },
+        "I": function() {
+            line(-10, 0, 30, 0);
+            line(10, 10, 10, 80);
+            line(-10, 90, 30, 90);
+        },
+        "J": function() {
+            line(10, 0, 50, 0);
+            beginShape();
+            vertex(30, 10);
+            vertex(30, 80);
+            vertex(20, 90);
+            vertex(10, 90);
+            vertex(0, 80);
+            vertex(0, 70);
+            endShape();
+        },
+        "K": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 50);
+            vertex(10, 50);
+            vertex(40, 10);
+            vertex(40, -10);
+            vertex(40, 10);
+            vertex(10, 50);
+            vertex(40, 80);
+            vertex(40, 100);
+            vertex(40, 80);
+            vertex(10, 50);
+            vertex(0, 50);
+            vertex(0, 100);
+            endShape();
+        },
+        "L": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 90);
+            vertex(40, 90);
+            endShape();
+        },
+        "M": function() {
+            beginShape();
+            vertex(0, 100);
+            vertex(0, 0);
+            vertex(20, 0);
+            vertex(40, 40);
+            vertex(60, 0);
+            vertex(80, 0);
+            vertex(80, 100);
+            endShape();
+        },
+        "N": function() {
+            beginShape();
+            vertex(0, 100);
+            vertex(0, 0);
+            vertex(10, 0);
+            vertex(50, 90);
+            vertex(60, 90);
+            vertex(60, -10);
+            endShape();
+        },
+        "O": function() {
+            beginShape();
+            vertex(40, 20);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            vertex(0, 10);
+            vertex(0, 80);
+            vertex(10, 90);
+            vertex(30, 90);
+            vertex(40, 80);
+            vertex(40, 20);
+            endShape();
+        },
+        "P": function() {
+            beginShape();
+            vertex(0, 100);
+            vertex(0, 50);
+            vertex(30, 50);
+            vertex(10, 50);
+            vertex(30, 50);
+            vertex(40, 40);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            vertex(0, 0);
+            vertex(0, 100);
+            endShape();
+        },
+        "Q": function() {
+            beginShape();
+            vertex(40, 20);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            vertex(0, 10);
+            vertex(0, 80);
+            vertex(10, 90);
+            vertex(30, 90);
+            vertex(45, 90);
+            vertex(40, 80);
+            vertex(40, 20);
+            endShape();
+        },
+        "R": function() {
+            beginShape();
+            vertex(0, 100);
+            vertex(0, 0);
+            vertex(30, 0);
+            vertex(40, 10);
+            vertex(40, 40);
+            vertex(30, 50);
+            vertex(15, 50);
+            vertex(40, 80);
+            vertex(40, 100);
+            endShape();
+        },
+        "S": function() {
+            beginShape();
+            vertex(40, 20);
+            vertex(40, 10);
+            vertex(30, 0);
+            vertex(10, 0);
+            vertex(0, 10);
+            vertex(0, 30);
+            vertex(10, 40);
+            vertex(30, 40);
+            vertex(40, 50);
+            vertex(40, 80);
+            vertex(30, 90);
+            vertex(10, 90);
+            vertex(0, 80);
+            vertex(0, 70);
+            endShape();
+        },
+        "T": function() {
+            line(-10, 0, 50, 0);
+            line(20, 10, 20, 100);
+        },
+        "U": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 80);
+            vertex(10, 90);
+            vertex(30, 90);
+            vertex(40, 80);
+            vertex(40, -10);
+            endShape();
+        },
+        "V": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 40);
+            vertex(20, 90);
+            vertex(30, 90);
+            vertex(50, 40);
+            vertex(50, -10);
+            endShape();
+        },
+        "W": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 90);
+            vertex(20, 90);
+            vertex(40, 50);
+            vertex(60, 90);
+            vertex(80, 90);
+            vertex(80, -10);
+            endShape();
+        },
+        "X": function() {
+            beginShape();
+            vertex(20, 50);
+            vertex(0, 10);
+            vertex(0, -10);
+            vertex(0, 10);
+            vertex(20, 50);
+            vertex(40, 10);
+            vertex(40, -10);
+            vertex(40, 10);
+            vertex(20, 50);
+            vertex(40, 80);
+            vertex(40, 100);
+            vertex(40, 80);
+            vertex(20, 50);
+            vertex(0, 80);
+            vertex(0, 100);
+            endShape();
+        },
+        "Y": function() {
+            beginShape();
+            vertex(0, -10);
+            vertex(0, 20);
+            vertex(25, 60);
+            vertex(25, 100);
+            vertex(25, 60);
+            vertex(50, 20);
+            vertex(50, -10);
+            endShape();
+        },
+        "Z": function() {
+            beginShape();
+            vertex(-10, 0);
+            vertex(40, 0);
+            vertex(0, 90);
+            vertex(50, 90);
+            endShape();
+        },
+        "!": function() {
+            line(0, -10, 0, 70);
+            line(0, 80, 0, 100);
+        },
+        " ": function() {}
+    };
+    
+    var titleX = 0,
+        titleAvg = 0;
+    var title = function(txt, x, y, size, color) {
+        txt = txt.toUpperCase();
+        strokeCap(SQUARE);
+        if (txt.toLowerCase().startsWith("snow")) {
+            strokeJoin(ROUND);
+        }
+        noFill();
+    
+        titleX = 0;
+        for (var i = 0; i < txt.length; i++) {
+            titleX += titleWidths[txt.charAt(i)];
+        }
+        titleAvg = titleX / txt.length;
+    
+        pushMatrix();
+        translate(x, y);
+        scale(size / 100, size / 100);
+        translate(-titleX / 2 + titleAvg / 4, 0);
+        strokeWeight(20);
+        stroke(color);
+        for (var i = 0; i < txt.length; i++) {
+            titleDesigns[txt.charAt(i)]();
+            translate(titleWidths[txt.charAt(i)], 0);
+        }
+        popMatrix();
+        strokeCap(ROUND);
+        strokeJoin(MITER);
+    };
+// }
+
+// Draw text
+var txt = function(letters, x, y, r, sz) {
+    pushMatrix();
+    translate(x, y);
+    scale(sz / 30, sz / 30);
+    rotate(r);
+    text(letters, 0, 0);
+    popMatrix();
+};
+
+// Instructions
+var instructions = function(x, y, c) {
+    strokeWeight(3);
+    stroke(c);
+    noFill();
+    strokeJoin(ROUND);
+    strokeCap(ROUND);
+    rectMode(CENTER);
+    rect(x - 30, y, 50, 50, 5);
+    rect(x + 30, y, 50, 50, 5);
+    triangle(x - 45, y, x - 20, y - 15, x - 20, y + 15);
+    triangle(x + 45, y, x + 20, y - 15, x + 20, y + 15);
+
+    line(x - 50, y + 55, x - 30, y + 55);
+    line(x + 50, y + 55, x + 3, y + 55);
+
+    pushMatrix();
+    translate(x, y + 90);
+    rotate(-30);
+    beginShape();
+    vertex(0, 15);
+    vertex(0, -35);
+    bezierVertex(0, -40, 10, -40, 10, -35);
+    vertex(10, 0);
+    vertex(10, -15);
+    bezierVertex(10, -20, 20, -20, 20, -15);
+    vertex(20, 0);
+    vertex(20, -10);
+    bezierVertex(20, -15, 30, -15, 30, -10);
+    vertex(30, 0);
+    vertex(30, -5);
+    bezierVertex(30, -10, 40, -10, 40, -5);
+    vertex(40, 20);
+    bezierVertex(35, 45, 10, 45, 0, 30);
+    vertex(-20, 10);
+    bezierVertex(-28, 5, -21, -4, -15, 0);
+    endShape(CLOSE);
+
+    popMatrix();
+    rectMode(CORNER);
+};
+
+// Background
+var bg = (function() {
+    var mountains = function(x, y, sz, sy) {
+        pushMatrix();
+        translate(x, y);
+        scale(sz, sy);
+        noStroke();
+        rect(-100, 360, 700, 40);
+        triangle(58, 352, 86, 365, 22, 366);
+        triangle(101, 354, 86, 365, 114, 363);
+        triangle(141, 349, 158, 362, 114, 363);
+        triangle(208, 394, 147, 356, 177, 353);
+        triangle(220, 369, 171, 367, 209, 351);
+        triangle(239, 365, 184, 369, 227, 349);
+        triangle(269, 378, 217, 361, 238, 329);
+        triangle(293, 360, 246, 362, 249, 328);
+        triangle(310, 365, 330, 331, 375, 366);
+        triangle(310, 365, 356, 335, 375, 366);
+        triangle(407, 360, 354, 335, 370, 366);
+        triangle(461, 362, 408, 342, 375, 366);
+        triangle(480, 362, 460, 340, 429, 363);
+        triangle(519, 361, 476, 349, 471, 364);
+        triangle(519, 361, 493, 348, 471, 364);
+        triangle(559, 376, 528, 342, 498, 354);
+        triangle(598, 361, 584, 345, 505, 362);
+        popMatrix();
+    };
+
+    var bigmountain = function(x, y, sz, sy) {
+        pushMatrix();
+        translate(x, y);
+        scale(sz, sy);
+        noStroke();
+        triangle(5, 247, 140, 129, 192, 175);
+        triangle(-37, 247, 215, 248, 192, 175);
+        triangle(257, 190, 210, 253, 192, 175);
+        triangle(255, 190, 210, 253, 305, 160);
+        triangle(350, 242, 200, 253, 305, 160);
+        triangle(350, 242, 468, 53, 303, 178);
+        triangle(552, 163, 468, 53, 483, 18);
+        triangle(554, 163, 468, 52, 336, 259);
+        triangle(600, 138, 600, 248, 336, 259);
+        popMatrix();
+    };
+
+    var road = function(x, y, sz) {
+        pushMatrix();
+        translate(x, y);
+        scale(sz);
+        noStroke();
+        fill(163, 183, 204);
+        quad(280, 350, 320, 350, 350, 400, 250, 400);
+        triangle(277, 370, 280, 350, 262, 365);
+        triangle(277, 371, 266, 386, 262, 365);
+        triangle(277, 371, 266, 386, 246, 386);
+        triangle(236, 412, 266, 386, 246, 386);
+        triangle(335, 365, 323, 369, 320, 352);
+        triangle(335, 365, 323, 369, 346, 398);
+        triangle(368, 404, 340, 383, 346, 398);
+        fill(143, 128, 143);
+        quad(290, 350, 310, 350, 320, 400, 280, 400);
+        fill(140, 123, 140);
+        quad(290, 350, 310, 350, 315, 380, 285, 380);
+        fill(135, 116, 135);
+        quad(290, 350, 310, 350, 310, 360, 290, 360);
+        fill(197, 213, 224);
+        triangle(126, 533, 0, 510, 0, 554);
+        rect(0, 523, 100, 100);
+        rect(0, 440, 158, 100);
+        quad(575, 600, 678, 600, 600, 437, 427, 406);
+        fill(113, 145, 176);
+        quad(525, 600, 580, 600, 436, 406, 395, 400);
+        triangle(499, 495, 512, 493, 447, 426);
+        triangle(496, 495, 512, 493, 539, 545);
+        fill(163, 183, 204);
+        quad(75, 600, 525, 600, 400, 400, 200, 400);
+        triangle(175, 445, 200, 400, 160, 418);
+        triangle(175, 445, 146, 491, 160, 418);
+        triangle(175, 445, 146, 491, 126, 459);
+        triangle(126, 524, 102, 511, 173, 446);
+        triangle(143, 524, 102, 511, 102, 558);
+        triangle(143, 560, 102, 534, 72, 558);
+        triangle(74, 600, 195, 556, 71, 558);
+        triangle(42, 526, 0, 523, 0, 549);
+        triangle(9, 536, 52, 518, 47, 533);
+        fill(64, 65, 66);
+        quad(150, 600, 450, 600, 350, 400, 250, 400);
+        fill(69, 69, 69);
+        quad(175, 550, 425, 550, 350, 400, 250, 400);
+        fill(74, 73, 74);
+        quad(200, 500, 400, 500, 350, 400, 250, 400);
+        fill(163, 183, 204);
+        triangle(182, 531, 190, 512, 195, 527);
+        triangle(195, 472, 219, 479, 193, 511);
+        triangle(195, 472, 219, 479, 230, 434);
+        triangle(243, 407, 244, 430, 230, 434);
+        triangle(366, 427, 352, 436, 350, 398);
+        triangle(366, 426, 352, 436, 399, 483);
+        triangle(439, 551, 407, 534, 411, 512);
+        triangle(460, 511, 463, 488, 413, 425);
+        fill(197, 213, 224);
+        triangle(585, 441, 552, 416, 467, 416);
+        triangle(461, 417, 465, 405, 445, 409);
+        triangle(585, 441, 552, 416, 607, 437);
+        popMatrix();
+    };
+
+    return function() {
+        background(105, 150, 184);
+        fill(24, 23, 26);
+        bigmountain(-208, -154, 1.4, 1);
+        fill(31, 28, 38);
+        bigmountain(-527, -91, 2, 1);
+        fill(40, 36, 51);
+        bigmountain(-244, -56, 2, 1);
+        fill(59, 52, 77);
+        bigmountain(-191, -9, 3, 1);
+        fill(72, 64, 92);
+        bigmountain(0, 0, 1, 1);
+        fill(76, 68, 97);
+        bigmountain(0, 10, 1, 1);
+        fill(92, 85, 112);
+        bigmountain(5, 20, 1, 1);
+        fill(95, 88, 117);
+        bigmountain(-5, 30, 1, 1);
+        fill(107, 102, 120);
+        mountains(0, -117, 2, 1);
+        fill(123, 116, 138);
+        mountains(-16, -98, 3, 1);
+        fill(133, 139, 179);
+        mountains(35, -74, 2.6, 1);
+        fill(125, 131, 173);
+        mountains(5, -63, 1.4, 1);
+        fill(94, 138, 168);
+        mountains(-32, -39, 3, 1);
+        fill(85, 131, 163);
+        mountains(0, 0, 1, 1);
+        fill(76, 70, 92);
+        mountains(-43, 32, 0.3, 1);
+        mountains(340, 32, 0.3, 1);
+        fill(197, 213, 224);
+        mountains(-32, 41, 3.1, 1);
+        fill(76, 70, 92);
+        mountains(389, -32, 0.4, 1.2);
+        mountains(503, -521, 0.2, 2.5);
+        road(0, 0, 1);
+    };
+})();
+
+// Player graphic
+var player = function(x, y, sz, c, r) {
+    pushMatrix();
+    translate(x, y);
+    scale(sz / 100);
+    rotate(r);
+    translate(-75 - 45 / 2, -125);
+
+    noStroke();
+    fill(c);
+    rect(75, 50, 45, 150, 10);
+    rect(75, 107, 12, 100, 5);
+    rect(108, 107, 12, 100, 5);
+    fill(0, 0, 0);
+    ellipse(80, 80, 7, 7);
+    ellipse(115, 80, 7, 7);
+    rect(76, 90, 43, 75, 30);
+    fill(lerpColor(c, 0, 0.3));
+    ellipse(98, 161, 30, 10);
+    fill(255, 255, 255);
+    arc(85, 92, 10, 10, -20, 145);
+    arc(107, 92, 10, 10, 21, 205);
+    arc(85, 163, 10, 10, -145, 33);
+    arc(108, 164, 10, 10, 150, 325);
+    fill(c);
+    beginShape();
+    vertex(33, 118);
+    bezierVertex(21, 129, 53, 138, 76, 158);
+    bezierVertex(53, 109, 40, 109, 33, 118);
+    endShape();
+    beginShape();
+    vertex(163, 118);
+    bezierVertex(177, 130, 147, 146, 116, 159);
+    bezierVertex(142, 117, 150, 111, 163, 118);
+    endShape();
+    fill(lerpColor(c, 0, 0.3));
+    ellipse(43, 120, 10, 10);
+    ellipse(153, 123, 10, 10);
+    fill(lerpColor(c, 0, 0.7));
+    ellipse(87, 140, 15, 15);
+    ellipse(105, 140, 15, 15);
+
+    popMatrix();
+};
+
+// Wall graphic
+var wall = function(x, y, w, h) {
+    pushMatrix();
+    translate(x, y);
+    scale(w / 150, h / 60);
+    translate(-115, -230);
+    noStroke();
+    fill(134, 206, 209);
+    rect(115, 230, 150, 60, 3);
+    fill(255, 255, 255, 100);
+    rect(120, 235, 140, 50, 10);
+    fill(255, 255, 255, 120);
+    rect(120, 235, 140, 50, 50);
+    fill(169, 227, 242, 150);
+    quad(150, 235, 120, 285, 130, 285, 160, 235);
+    quad(175, 235, 150, 285, 180, 285, 205, 235);
+    quad(225, 235, 200, 285, 210, 285, 235, 235);
+    quad(245, 235, 220, 285, 230, 285, 255, 235);
+    popMatrix();
+};
+
+// Coin graphic
+var coin = function(x, y, sz) {
+    pushMatrix();
+    translate(x, y);
+    scale(sin(x + frameCount * 1.5) * sz / 150, sz / 150);
+    translate(-115, -230);
+    noStroke();
+    fill(255, 194, 77);
+    ellipse(115, 230, 150, 150);
+    fill(253, 169, 49);
+    ellipse(115, 230, 140, 140);
+    fill(253, 200, 47);
+    ellipse(115, 230, 130, 130);
+    fill(254, 211, 72);
+    ellipse(115, 230, 120, 120);
+    noStroke();
+    fill(255, 255, 255, 75);
+    arc(115, 230, 127, 127, 228, 390);
+    popMatrix();
+};
+
+// Gem graphic
+var gem = function(x, y, sz) {
+    pushMatrix();
+    translate(x, y);
+    scale(map(sin(x + frameCount * 8), -1, 1, 0.9, 1.1) * sz / 150);
+    translate(-200, -200);
+    noStroke();
+    fill(31, 120, 145);
+    quad(200, 200, 295, 200, 248, 117, 228, 150);
+    fill(20, 110, 135);
+    quad(200, 200, 295, 200, 247, 282, 200, 200);
+    fill(31, 120, 145);
+    quad(200, 200, 152, 282, 248, 282, 200, 200);
+    fill(53, 142, 166);
+    quad(200, 200, 153, 282, 106, 200, 150, 200);
+    fill(77, 164, 186);
+    quad(200, 200, 152, 118, 105, 200, 150, 200);
+    fill(53, 142, 166);
+    quad(200, 200, 151, 118, 249, 117, 230, 150);
+    fill(29, 95, 112);
+    quad(140, 200, 260, 200, 230, 150, 170, 150);
+    quad(140, 200, 260, 200, 230, 250, 170, 250);
+    popMatrix();
+};
+
+// Smooth motion
+var Smooth = function(pos, dest, div) {
+    return (dest - pos) / div;
+};
+
+// Collide ellipse to rect
+var collide = function(x, y, rX, rY) {
+    var ang = atan2(rY - y, rX - x);
+    var pX = x + cos(ang) * playerSz / 2;
+    var pY = y + sin(ang) * playerSz / 2;
+
+    return pX > rX - wallW / 2 && pX < rX + wallW / 2 && pY > rY - wallH / 2 && pY < rY + wallH / 2;
+};
+
+// Make it run at the correct fps
+var deltaTime = 0,
+    prevTime = millis(),
+    accumulator = 0;
+var run = function(action, fps) {
+    // Calculate how many milliseconds have ellapsed since the last frame.
+    deltaTime = millis() - prevTime;
+    prevTime = millis();
+
+    // Fix the time if it gets slightly off so you don't jump frames (not essential, but nice to have).
+    if (Math.abs(deltaTime - 1 / 120) < 0.0002) {
+        deltaTime = 1 / 120;
+    }
+    if (Math.abs(deltaTime - 1 / 60) < 0.0002) {
+        deltaTime = 1 / 60;
+    }
+    if (Math.abs(deltaTime - 1 / 30) < 0.0002) {
+        deltaTime = 1 / 30;
+    }
+
+    // Add calculated change in time to total time
+    accumulator += deltaTime / 1000;
+
+    // Call the action until the program has run enough times to appear to be at 60 FPS.
+    while (accumulator >= 1 / 60) {
+        // Parameter you pass, this does what you want to happen.
+        action();
+
+        // Add one to frameCount to make animations smoother and faster.
+        frameCount++;
+
+        // Subtract from the total time so you don't repeat this loop forever.
+        accumulator -= 1 / 60;
+    }
+};
+
+// Stuff to run in the game
+var gameRun = function() {
+    playerX += Smooth(playerX, 150 + playerLn * 150, 4);
+    playerR += Smooth(playerR, 0, 16);
+
+    if (readI) {
+        wallDist += speed;
+        coinDist += speed;
+    }
+
+    if (wallDist > wallSpace) {
+        addedWall = 0;
+        for (var i = 0; i < 3; i++) {
+            if ((~~random(2) === 0 || (i === 2 && addedWall < 1)) && !(i === 2 && addedWall === 2)) {
+                addedWall++;
+                objects.walls.push({
+                    x: 75 + i * 150,
+                    y: -100
+                });
+                if (coinLn === i) {
+                    coinAmt = 0;
+                }
+            }
+        }
+        speed += 0.1;
+        wallDist -= wallSpace;
+    }
+
+    if (coinDist > coinSpace) {
+        if (coinAmt <= 0) {
+            coinAmt = ~~random(5, 10);
+            coinLn = ~~random(3);
+            coinDist -= wallSpace / 2;
+        } else {
+            coinAmt--;
+            if (coinAmt <= 0 && random(5) > 3 && score > 20) {
+                objects.gems.push({
+                    x: 150 + coinLn * 150,
+                    y: -100 + wallH
+                });
+            } else {
+                objects.coins.push({
+                    x: 150 + coinLn * 150,
+                    y: -100 + wallH
+                });
+            }
+            coinDist -= coinSpace;
+        }
+    }
+
+    for (var i = objects.coins.length - 1; i >= 0; i--) {
+        objects.coins[i].y += speed;
+        if (dist(playerX, playerY, objects.coins[i].x, objects.coins[i].y) < (playerSz + coinSz) / 2) {
+            score++;
+            scoreY = -10;
+            for (var j = 0; j < 3; j++) {
+                objects.particles.push({
+                    x: objects.coins[i].x,
+                    y: objects.coins[i].y,
+                    destX: objects.coins[i].x + random(-coinSz, coinSz),
+                    destY: objects.coins[i].y - random(coinSz * 1.5),
+                    sz: random(5, 10),
+                    opac: random(120, 150),
+                    color: color(230, 200, 40)
+                });
+            }
+            objects.coins.splice(i, 1);
+            continue;
+        }
+        if (objects.coins[i].y > height + 50) {
+            objects.coins.splice(i, 1);
+        }
+    }
+
+    for (var i = objects.gems.length - 1; i >= 0; i--) {
+        objects.gems[i].y += speed;
+        if (dist(playerX, playerY, objects.gems[i].x, objects.gems[i].y) < (playerSz + coinSz) / 2) {
+            score += 5;
+            scoreY = -10;
+            for (var j = 0; j < 3; j++) {
+                objects.particles.push({
+                    x: objects.gems[i].x,
+                    y: objects.gems[i].y,
+                    destX: objects.gems[i].x + random(-coinSz, coinSz),
+                    destY: objects.gems[i].y - random(coinSz * 1.5),
+                    sz: random(8, 12),
+                    opac: random(120, 150),
+                    color: color(0, 190, 200)
+                });
+            }
+            objects.gems.splice(i, 1);
+            continue;
+        }
+        if (objects.gems[i].y > height + 50) {
+            objects.gems.splice(i, 1);
+        }
+    }
+
+    for (var i = objects.walls.length - 1; i >= 0; i--) {
+        objects.walls[i].y += speed;
+        if (collide(playerX, playerY, objects.walls[i].x + wallW / 2, objects.walls[i].y + wallH / 2)) {
+            dead = true;
+        }
+
+        if (objects.walls[i].y > height + 50) {
+            objects.walls.splice(i, 1);
+        }
+    }
+
+    objects.particles.push({
+        x: playerX,
+        y: playerY,
+        destX: playerX + random(-playerSz / 2, playerSz / 2),
+        destY: playerY + random(playerSz * 3),
+        sz: random(10, 15),
+        opac: random(90, 120),
+        color: color(255, 255, 255)
+    });
+
+    for (var i = objects.particles.length - 1; i >= 0; i--) {
+        objects.particles[i].x += Smooth(objects.particles[i].x, objects.particles[i].destX, 6);
+        objects.particles[i].y += Smooth(objects.particles[i].y, objects.particles[i].destY, 6);
+        objects.particles[i].opac -= 8;
+        if (objects.particles[i].opac <= 0) {
+            objects.particles.splice(i, 1);
+        }
+    }
+
+    for (var i = 0; i < quads.length; i++) {
+        quads[i] += speed / 4;
+        if (quads[i] > 100) {
+            quads[i] = 0;
+        }
+    }
+
+    if (readI) {
+        instructionsY += Smooth(instructionsY, 650, 8);
+    }
+};
+
+// Stuff to draw in the game
+var gameDraw = function() {
+    imageMode(CORNER);
+    image(bgImg1, 0, 0);
+
+    noStroke();
+
+    for (var i = 0; i < quads.length; i++) {
+        fill(100, 105, 110, 100 - quads[i]);
+        quad(330, 400, 270, 400, 270 - quads[i], 400 + quads[i] * 2, 330 + quads[i], 400 + quads[i] * 2);
+    }
+
+    for (var i = 0; i < 3; i++) {
+        fill(255, 255, 255, 80 - Math.abs(playerX - (150 + i * 150)));
+        rect(75 + i * 150, 0, 150, 600);
+    }
+
+    for (var i = objects.coins.length - 1; i >= 0; i--) {
+        coin(objects.coins[i].x, objects.coins[i].y, coinSz);
+    }
+
+    for (var i = objects.gems.length - 1; i >= 0; i--) {
+        gem(objects.gems[i].x, objects.gems[i].y, coinSz);
+    }
+
+    for (var i = objects.walls.length - 1; i >= 0; i--) {
+        wall(objects.walls[i].x - constrain(sin(objects.walls[i].x * 10 + frameCount * 5) * 2 - 1, 0, 1) * wallH / 6, objects.walls[i].y, wallW + constrain(sin(objects.walls[i].x * 10 + frameCount * 5) * 2 - 1, 0, 1) * wallH / 3, wallH);
+    }
+
+    noStroke();
+    rectMode(CENTER);
+    for (var i = objects.particles.length - 1; i >= 0; i--) {
+        pushMatrix();
+        translate(objects.particles[i].x, objects.particles[i].y);
+        rotate(45);
+        fill(objects.particles[i].color, objects.particles[i].opac);
+        rect(0, 0, objects.particles[i].sz, objects.particles[i].sz);
+        popMatrix();
+    }
+    rectMode(CORNER);
+
+    player(playerX, playerY, playerSz / 1.2 + sin(frameCount) * 3, pColor, playerR + sin(frameCount * 2) * 5);
+
+    if (dead) {
+        deathImg = get(0, 0, width, height);
+        scene = over;
+        fade = 255;
+        imgSize = 0;
+        message = ~~random(messages.length);
+    }
+
+    textAlign(LEFT, CENTER);
+    fill(255, 255, 255);
+    scoreY += Smooth(scoreY, 0, 6);
+    txt("SCORE: " + score, 20, 30 - scoreY, scoreY, 30 - scoreY / 3);
+
+    if (instructionsY < 630) {
+        instructions(300, instructionsY + 3, color(0, 0, 50, 50));
+        instructions(300, instructionsY, color(255, 255, 255));
+    }
+};
+
+// Game function
+game = function() {
+    run(gameRun);
+    gameDraw();
+};
+
+// Resets all the variablesd
+var toGame = function() {
+    deltaTime = 0;
+    prevTime = millis();
+    accumulator = 0;
+
+    playerLn = 1;
+    playerX = 300;
+    moved = false;
+    speed = 5;
+    wallDist = 0;
+    coinDist = 0;
+    addedWall = 0;
+    coinAmt = 0;
+    score = 0;
+    scoreY = 0;
+    dead = false;
+
+    fade = 255;
+    scene = game;
+
+    objects = {
+        walls: [],
+        coins: [],
+        gems: [],
+        particles: []
+    };
+};
+
+// Buttons
+var mouseD = function(x, y, sz) {
+    return dist(mouseX, mouseY, x, y) < sz / 2;
+};
+var playButton = {
+    x: 300,
+    y: 320,
+    sz: 150,
+    amount: 0,
+    pack: function() {
+        noStroke();
+        fill(245, 245, 245);
+        ellipse(this.x, this.y, this.sz - this.amount / 12, this.sz - this.amount / 12);
+        noFill();
+        stroke(210, 225, 245, this.amount / 180 * 255);
+        strokeWeight(this.sz / 20);
+        arc(this.x, this.y, this.sz, this.sz, 90 - this.amount, 90 + this.amount);
+        fill(50, 50, 50);
+        noStroke();
+        beginShape();
+        for (var i = 0; i < 3; i++) {
+            vertex(this.x + cos(i * 120) * (this.sz / 3 - this.amount / 12), this.y + sin(i * 120) * (this.sz / 3 - this.amount / 12));
+        }
+        endShape();
+        if (mouseD(this.x, this.y, this.sz)) {
+            overButton = true;
+            this.amount += Smooth(this.amount, 180, 8);
+            if (click) {
+                toGame();
+            }
+        } else {
+            this.amount += Smooth(this.amount, 0, 10);
+        }
+    }
+};
+var backButton = {
+    x: 60,
+    y: 540,
+    sz: 80,
+    amount: 0,
+    pack: function() {
+        noStroke();
+        fill(245, 245, 245);
+        ellipse(this.x, this.y, this.sz - this.amount / 12, this.sz - this.amount / 12);
+        noFill();
+        stroke(210, 225, 245, this.amount / 180 * 255);
+        strokeWeight(this.sz / 20);
+        arc(this.x, this.y, this.sz, this.sz, 90 - this.amount, 90 + this.amount);
+        fill(50, 50, 50);
+        txt("BACK", this.x, this.y, 0, this.sz / 4 - this.amount / 30);
+        if (mouseD(this.x, this.y, this.sz)) {
+            overButton = true;
+            this.amount += Smooth(this.amount, 180, 8);
+            if (click) {
+                fade = 255;
+                scene = menu;
+            }
+        } else {
+            this.amount += Smooth(this.amount, 0, 10);
+        }
+    }
+};
+var againButton = {
+    x: 540,
+    y: 540,
+    sz: 80,
+    amount: 0,
+    pack: function() {
+        noStroke();
+        fill(245, 245, 245);
+        ellipse(this.x, this.y, this.sz - this.amount / 12, this.sz - this.amount / 12);
+        noFill();
+        stroke(210, 225, 245, this.amount / 180 * 255);
+        strokeWeight(this.sz / 20);
+        arc(this.x, this.y, this.sz, this.sz, 90 - this.amount, 90 + this.amount);
+        fill(50, 50, 50);
+        txt("REPLAY", this.x, this.y, 0, this.sz / 5 - this.amount / 30);
+        if (mouseD(this.x, this.y, this.sz)) {
+            overButton = true;
+            this.amount += Smooth(this.amount, 180, 8);
+            if (click) {
+                toGame();
+            }
+        } else {
+            this.amount += Smooth(this.amount, 0, 10);
+        }
+    }
+};
+
+// Snow
+var snow = (function() {
+    var snow = [];
+    for (var i = 0; i < 100; i++) {
+        snow.push({
+            x: random(width),
+            y: random(height),
+            size: random(3, 10),
+            xVel: random(2, 4),
+            yVel: random(2, 4)
+        });
+    }
+
+    return function() {
+        noStroke();
+        rectMode(CENTER);
+        for (var i = 0; i < snow.length; i++) {
+            fill(255, 255, 255, 100 + cos(snow[i].x - frameCount * 3) * 15 + sin(snow[i].y + frameCount * 2) * 15);
+            pushMatrix();
+            translate(snow[i].x, snow[i].y);
+            rotate(45);
+            rect(0, 0, snow[i].size, snow[i].size);
+            popMatrix();
+            snow[i].x = snow[i].x > width + 20 ? -20 : snow[i].x + snow[i].xVel;
+            snow[i].y = snow[i].y > height + 20 ? -20 : snow[i].y + snow[i].yVel;
+        }
+        rectMode(CORNER);
+    };
+})();
+
+// Menu
+menu = function() {
+    imageMode(CORNER);
+    image(bgImg2, 0, 0);
+
+    snow();
+
+    playButton.pack();
+
+    rectMode(CORNER);
+    noStroke();
+    fill(210, 225, 245);
+    rect(20, 5, 560, 5);
+    rect(590, 20, 5, 560);
+    rect(20, 590, 560, 5);
+    rect(5, 20, 5, 560);
+
+    fill(245, 245, 245);
+    (rect)(5, 5, 15, 15, 0, 0, 2, 0);
+    (rect)(580, 5, 15, 15, 0, 0, 0, 2);
+    (rect)(580, 580, 15, 15, 2, 0, 0, 0);
+    (rect)(5, 580, 15, 15, 0, 2, 0, 0);
+
+    textAlign(CENTER, CENTER);
+
+    fill(175, 195, 225);
+    txt("Survive the dangers of the", 250, 472, 0, 30);
+    txt("Mountain!", 408, 508, 0, 50);
+    fill(225, 245, 255);
+    txt("Survive the dangers of the", 250, 470, 0, 30);
+    txt("Mountain!", 408, 505, 0, 50);
+
+    title("SNOW SPRINTER", 300, 102, 55, color(210, 225, 245));
+    title("SNOW SPRINTER", 300, 97, 55, color(255, 255, 255));
+    textAlign(LEFT, TOP);
+    txt("Light Runner x Green Ghost ~~ 2020", 50, 158, 0, 20);
+};
+
+// Game over
+over = function() {
+    background(0, 0, 0);
+
+    imageMode(CENTER);
+    imgSize += Smooth(imgSize, 60, 50);
+    image(deathImg, 300, 300, 600 + imgSize, 600 + imgSize);
+
+    noStroke();
+    fill(0, 0, 0, imgSize * 3);
+    rect(0, 0, width, height);
+
+    loseFade += 5;
+    textAlign(CENTER, CENTER);
+    fill(255, 255, 255, loseFade);
+    txt("GAME OVER", 300, 300, sin(frameCount * 20) * constrain(sin(frameCount * 3), 0, 1) * 20, 50);
+
+    highScore = Math.max(score, highScore);
+    txt("Score: " + score + "\nHigh Score: " + highScore, 300, 420, 0, 30);
+    txt(messages[message], 300, 190, 0, 30);
+
+    fill(255, 215, 0);
+    txt(theHigh.name + " (top scorer): " + theHigh.score, 300, 475, 0, 30);
+
+    backButton.pack();
+    againButton.pack();
+};
+
+// 1000 Kelvin
+var badge = function(x, y, sz) {
+    noStroke();
+    fill(40, 125, 140);
+    ellipse(x, y, sz, sz);
+    fill(100, 165, 170);
+    ellipse(x, y, sz / 1.12, sz / 1.12);
+    fill(0, 80, 100);
+    ellipse(x, y, sz / 1.3, sz / 1.3);
+    
+    fill(255, 255, 255);
+    ellipse(x, y + sz / 5, sz / 6, sz / 6);
+    rect(x - sz / 26, y - sz / 4, sz / 13, sz / 2, sz);
+    fill(0, 80, 100);
+    ellipse(x, y + sz / 5, sz / 12, sz / 12);
+    rect(x - sz / 60, y - sz / 4.4, sz / 30, sz / 2.3, sz);
+    for (var i = 0; i < 9; i++) {
+        rect(x - sz / 34, y - sz / 5 + i * sz / 25, sz / 17, sz / 70);
+    }
+};
+
+// Thumbnail
+var thumbnail = function() {
+    background(0, 0, 0);
+    imageMode(CENTER);
+    image(bgImg2, 300, 300);
+
+    noStroke();
+    fill(255, 180, 100, 50);
+    for (var i = 0; i < 5; i++) {
+        ellipse(50, 480, 300 + i * 150, 300 + i * 150);
+    }
+
+    fill(210, 225, 245);
+    textAlign(CENTER, CENTER);
+    txt("A CHANCE TO DOMINATE IN", 299, 65, 0, 37);
+    txt("A CHANCE TO DOMINATE IN", 301, 65, 0, 37);
+
+    title("SNOW SPRINTER", 300, 102, 55, color(210, 225, 245));
+    title("SNOW SPRINTER", 300, 97, 55, color(255, 255, 255));
+
+    player(120, 380, 130, pColor, 35);
+
+    title("LIGHT RUNNER x GREEN GHOST", 300, 502, 33, color(210, 225, 245));
+    title("LIGHT RUNNER x GREEN GHOST", 300, 497, 33, color(255, 255, 255));
+
+    textAlign(CENTER, TOP);
+    fill(210, 225, 245);
+    txt("RECORD: " + theHigh.name.toUpperCase() + "\nWITH " + theHigh.score + " POINTS!!!", 350, 277, 20, 32);
+    txt("RECORD: " + theHigh.name.toUpperCase() + "\nWITH " + theHigh.score + " POINTS!!!", 348, 275, 20, 32);
+    fill(255, 255, 255);
+    txt("RECORD: " + theHigh.name.toUpperCase() + "\nWITH " + theHigh.score + " POINTS!!!", 350, 275, 20, 32);
+
+    strokeWeight(3);
+    stroke(255, 255, 255);
+    noFill();
+    strokeJoin(ROUND);
+    beginShape();
+    vertex(250, 335);
+    vertex(170, 380);
+    vertex(270, 350);
+    endShape();
+    strokeJoin(MITER);
+    badge(530, 250, 100);
+    fill(255, 255, 255);
+    textAlign(CENTER, CENTER);
+    txt("The last program on KA\nto get 1000 KELVIN!", 350, 200, 0, 25);
+};
+
+// Logo
+var greenGhostLogo = function(x, y, size) {
+    pushMatrix();
+    translate(x, y);
+    scale(size / 600, size / 600);
+    translate(0, -200);
+    beginShape();
+    vertex(-270, 20);
+    bezierVertex(-600, 250, -700, 600, -50, 600);
+    vertex(-125, 400);
+    vertex(-255, 480);
+    bezierVertex(-305, 430, -395, 280, -205, 180);
+    endShape(CLOSE);
+    beginShape();
+    vertex(270, 20);
+    bezierVertex(600, 250, 700, 600, 50, 600);
+    vertex(125, 400);
+    vertex(255, 480);
+    bezierVertex(305, 430, 395, 280, 205, 180);
+    endShape(CLOSE);
+    beginShape();
+    vertex(0, 600);
+    vertex(225, 0);
+    bezierVertex(60, -80, -60, -80, -225, 0);
+    endShape(CLOSE);
+    popMatrix();
+};
+
+var logoPos = 0;
+var logoTime = 0;
+var logo = function() {
+    logoTime++;
+    logoPos += Smooth(logoPos, 100, 10);
+    background(20, 20, 50);
+    noStroke();
+
+    fill(140, 255, 100, 255 - logoPos);
+    quad(0, 100, 0, 0, 600, 0, 600, 500);
+
+    fill(255, 240, 160, 255 - logoPos);
+    quad(0, 100, 0, 600, 600, 600, 600, 500);
+
+    textAlign(CENTER, CENTER);
+    fill(255, 255, 255, 75);
+    txt("x", 300, 300, 0, 420);
+
+    pushMatrix();
+    translate(300, 300);
+    rotate(34);
+
+    fill(20, 20, 50, 20);
+    for (var i = 0; i < 5; i++) {
+        rect(-450, -80 - i * i * 10, 900, 160 + i * i * 20);
+    }
+
+    fill(255, 255, 230, 100);
+    txt("< Light Runner", 800 - logoPos * 8, -45, 0, 90);
+    txt("Green Ghost >", -800 + logoPos * 8, 45, 0, 90);
+
+    fill(255, 240, 160);
+    txt("< Light Runner", 800 - logoPos * 8, -40, 0, 90);
+    fill(140, 255, 100);
+    txt("Green Ghost >", -800 + logoPos * 8, 40, 0, 90);
+
+    fill(140, 255, 100);
+    greenGhostLogo(0, 755 - logoPos * 5, 250 + sin(frameCount * 10) * 5);
+    popMatrix();
+
+    fill(255, 240, 160);
+    pushMatrix();
+    translate(600, 0);
+    rotate(frameCount);
+    for (var i = 0; i < 20; i++) {
+        triangle(0, -250, -50, 0, 50, 0);
+        rotate(18);
+    }
+    popMatrix();
+
+    if (logoTime > 200 || click) {
+        fade = 255;
+        scene = menu;
+    }
+};
+
+// Set the scene
+scene = logo;
+
+// Animation
+draw = function() {
+    if (!loaded) {
+        bg();
+
+        bgImg1 = get(0, 0, width, height);
+
+        filter(BLUR, 2);
+        bgImg2 = get(0, 0, width, height);
+
+        background(255, 255, 255);
+        fill(0, 0, 0);
+        textAlign(CENTER, CENTER);
+        txt("LOADING...", 300, 300, 0, 50);
+
+        loaded = true;
+    } else {
+        scene();
+
+        click = false;
+        cursor(overButton ? "pointer" : "default");
+        overButton = false;
+        noStroke();
+        fill(0, fade);
+        rect(0, 0, width, height);
+        fade -= 15;
+
+        if (keys[32] && keys[16] && keys[84]) {
+            thumbnail();
+        }
+    }
+};
+
+// User interaction
+mouseDragged = function() {
+    if (scene === game) {
+        if (!moved && Math.abs(mouseX - pmouseX) > 0) {
+            playerLn += (mouseX - pmouseX) / Math.abs(mouseX - pmouseX);
+            playerR = (mouseX - pmouseX) / Math.abs(mouseX - pmouseX) * 30;
+            playerLn = constrain(playerLn, 0, 2);
+            moved = true;
+            readI = true;
+        }
+    }
+};
+
+mouseClicked = function() {
+    click = true;
+};
+
+mouseReleased = function() {
+    if (scene === game) {
+        moved = false;
+    }
+};
+
+keyPressed = function() {
+    keys[keyCode] = true;
+    if (scene === game) {
+        if (keyCode === LEFT) {
+            playerLn -= 1;
+            playerR = -30;
+            readI = true;
+        } else if (keyCode === RIGHT) {
+            playerLn += 1;
+            playerR = 30;
+            readI = true;
+        }
+        playerLn = constrain(playerLn, 0, 2);
+    }
+};
+
+keyReleased = function() {
+    keys[keyCode] = false;
+};
+
+
