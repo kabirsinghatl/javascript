@@ -1,0 +1,376 @@
+/*
+
+
+
+
+
+
+
+*/
+
+textFont(createFont("Arial Black"));
+textAlign(CENTER);
+
+background(194, 168, 116);
+noStroke();
+
+fill(166, 127, 70);
+rect(0,0,width,height/3+8);
+fill(179, 139, 79);
+rect(0,0,width,height/3);
+
+fill(0, 0, 0,100);
+textSize(59);
+text("Game Assets\n~Weapons~",254,59);
+fill(255, 255, 255);
+textSize(59);
+text("Game Assets\n~Weapons~",250,59);
+
+var Guns = function(x,y,s,r,t){
+    pushMatrix();
+    translate(x,y);
+    scale(s);
+    rotate(r);
+    
+    switch(t){
+        //Revolver{    
+        case 1:
+        stroke(99, 99, 99);
+        strokeWeight(5);
+        noFill();
+        arc(-21,10,20,20,-90,0);
+        stroke(66, 66, 66);
+        arc(2,30,42,23,0,180);
+        arc(8,24,7,23,-251,0);
+        noStroke();
+        fill(133, 133, 133);
+        quad(93,-1,93,7,71,10,90,0);
+        rect(0,15,51,6);
+        ellipse(-6,19,32,30);
+        fill(158, 99, 47);
+        arc(-6,19,32,30,14,104);
+        fill(71, 71, 71);
+        rect(0,6,100,9);
+        quad(0,21,50,21,46,30,2,29);      
+        rect(0,17,52,2);
+        fill(158, 99, 47);
+        quad(-21,15,1,7,-10,60,-32,60);
+        
+        break;
+        //}
+        //AK47{
+        case 2:
+       
+        strokeWeight(20);
+        strokeCap(SQUARE);
+        noFill();
+         stroke(181, 110, 34);
+        arc(140,18,32,74,-246,-164);
+        
+         stroke(84, 84, 84);
+         strokeWeight(3);
+        
+        noStroke();    
+        fill(128, 128, 128);
+        rect(79,1,161,6);
+        arc(239,1,20,12,0,90);
+        fill(107, 107, 107);
+        rect(79,4,161,3);
+        arc(239,4,18,5,0,90);
+        fill(77, 77, 77);
+        rect(77,19,20,4,6);
+        rect(93,5,5,18,6);
+        arc(89,0,9,36,88,193);
+        rect(93,5,22,12,4);
+        fill(196, 116, 32);  
+        rect(66,3,13,40,10);
+        rect(62,3,21,13,10);        
+        fill(77, 77, 77);
+        rect(52,-4,144,13,3);
+        rect(78,-4,144,3,3);        
+        rect(78,7,161,3,3);   
+        rect(219,-4,3,13,3);  
+        arc(120,-4,8,13,-90,0);  
+        fill(196, 116, 32);
+        quad(0,0,0,30,53,9,53,0);
+        rect(148,-6,45,18,5);
+        fill(166, 90, 15);
+        quad(0,10,0,30,53,9,53,7);
+        rect(148,2,45,9,5);
+        
+        
+        break;
+        //}
+        //Another type of revolver{
+        case 3:
+        fill(77, 77, 77);
+        arc(10,14,20,20,-270,0);
+        rect(9,0,67,10,2);
+        fill(143, 143, 143);
+        rect(0,0,67,10);
+        fill(107, 107, 107);
+        rect(26,-4,50,8);
+        rect(0,-4,15,10);        
+        rect(25,-4,42,10);  
+        arc(20,2,31,14,0,180);
+        arc(0,3,31,14,92,271);
+        rect(-5,6,72,4);    
+        quad(-12,0,9,4,-3,40,-25,40);
+        arc(8,13,20,20,-270,0);
+        arc(14,21,20,7,-318,-201);
+        arc(19,8,5,30,-318,-201);
+        fill(122, 79, 33);
+        quad(-12,16,-1,17,-9,37,-21,37);    
+        fill(0,0,0,70);
+        rect(-10,-3,16,13);
+        rect(26,-3,36,2);
+        rect(26,1,36,2);
+        rect(26,6,36,2);
+        break;
+        //}
+        //custom Winchester model 70 in .458 caliber.{
+          case 4:
+            noFill();
+            strokeWeight(5);
+            stroke(0, 0, 0);
+            arc(96,9,34,39,0,184);
+            arc(107,9,34,39,134,185);
+            strokeWeight(20);
+            strokeCap(SQUARE);
+
+            stroke(110, 70, 0);
+            arc(80,44,149,70,-151,-84);
+
+            noStroke();  
+            fill(97, 97, 97);
+            rect(200,4,183,7);
+            fill(122, 122, 122);
+            rect(200,0,183,4);
+            arc(367,0,20,7,-188,0);
+           fill(110, 70, 0);
+           quad(5,0,5,30,30,30,59,0);
+           fill(0, 0, 0);
+           rect(0,0,5,30,2);    
+           rect(85,0,152,19,2);   
+            rect(110,0,152,3,2);   
+           fill(110, 70, 0);   
+           arc(150,19,30,36,-180,-90);
+           arc(235,10,30,18,0,90);
+           rect(150,1,100,10);
+           fill(0, 0, 0);
+           rect(145,9,93,10,5);    
+            //THE AMAZING SCOPE
+            fill(0, 0, 0);
+            rect(187-50,-5,6,6);
+            rect(223-50,-5,6,6);
+            rect(180-50,-15,65,11,3);  
+            arc(180-50,-10,10,14,-90,90);
+            arc(247-50,-10,22,17,90,270);
+            break;
+            
+        //}
+        //Knife{
+          case 5:
+            fill(204, 204, 204);
+            rect(0,-35,13,40);
+            arc(0,-35,26,40,-90,0);           
+            fill(0, 0, 0,60);
+            rect(3,-35,6,40);
+            arc(3,-35,12,26,-90,0);         
+            fill(0, 0, 0);
+            rect(0,0,13,40,2);
+            rect(-12,0,36,5,2);     
+            break;
+        //}
+        //Grenade launcher RPG{
+          case 6:
+            
+            fill(66, 21, 21);
+            stroke(66, 21, 21);
+            strokeWeight(4);
+            
+            triangle(-30,0,0,-10,0,10);
+            triangle(-7,0,5,-10,5,10);  
+            rect(0,-8,100,16);
+            rect(100,-15,3,31);    
+            rect(30,0,3,25,4);   
+            rect(68,5,3,25,4);   
+            quad(140,5,140,-5,100,-10,100,10);    
+            noFill();
+            arc(60,12,19,16,-370,-90);
+            arc(59,4,7,20,0,90);
+            //Effects{
+            noStroke();
+            fill(122, 22, 22);
+            ellipse(-30,0,5,5);
+            fill(0, 0, 0);
+            rect(25,-15,4,5);
+            rect(51,-15,4,5);
+            rect(25,-20,30,5,4);
+            rect(16,-27,48,8,4);
+            arc(13,-23,20,12,-90,90);
+            arc(67,-23,20,9,-270,-90);                    
+            //}
+            for(var i = 20;i<90;i+=20){
+            rect(i,-10,2,20);
+            }
+              
+          break;
+            
+        //}
+        //Mini Gun{
+        case 7:
+        noFill();
+        strokeCap(SQUARE); 
+        strokeWeight(2);
+        stroke(64, 64, 64);
+        ellipse(10,8,10,8);   
+        
+        strokeWeight(8);
+        stroke(82, 82, 82);
+        arc(-4,5,18,38,0,53);
+        stroke(143, 103, 34);
+        strokeWeight(4);
+        arc(-3,8,17,22,0,53);
+        noStroke();
+        fill(0, 0, 0);
+        rect(0,0,30,5,2);
+        break;
+        //}
+        //Future Gun{
+        case 8:
+        strokeCap(SQUARE);
+        stroke(161, 161, 161);
+        strokeWeight(20);
+        noFill();
+        arc(-3,-5,30,100,0,109);
+        strokeWeight(3);
+        arc(15,-5,30,100,0,109);
+        noStroke();
+        fill(97, 97, 97);
+        rect(0,-6,76,37,3);
+        fill(77, 77, 77);
+        ellipse(73,8,6,18);
+        ellipse(73,18,6,18);
+        fill(150, 150, 150);
+        rect(0,0,70,31,3);   
+        rect(72,5,8,7);
+        rect(72,15,8,7);
+        for(var i = 0;i<45;i++){
+        stroke(56, 199, 242,20);
+        noFill();
+        strokeWeight(i/8);
+        arc(i,11,i/2,6,0,180);
+        arc(i,21,i/2,6,0,180);
+        }
+
+        break;
+        //}
+        //Shotgun{
+          case 9:
+            stroke(20, 20, 20);
+            strokeWeight(3);
+            noFill();
+            rect(-31,10,20,10,3);
+            arc(-18,10,13,15,-236,-139);
+            noStroke();
+            fill(0, 0, 0);
+            rect(0,0,190,5,10);
+            rect(0,4,188,5,10);        
+            fill(41, 41, 41);
+            rect(0,8,89,5,10);   
+            rect(-46,0,52,13,2);
+            fill(0, 0, 0);
+            rect(-17,1,15,3,5);
+            fill(125, 77, 26);
+            rect(50,7,50,10,10);
+            fill(120, 65, 9);
+            for(var i = 0;i<50;i+=5){
+            rect(50+i,8,3,8,10);      }      
+            stroke(125, 77, 26);
+            strokeWeight(15);
+            noFill();
+            strokeCap(SQUARE);
+            arc(-41,19,54,23,180,270);
+            arc(-95,16,54,8,0,100);
+            strokeCap(ROUND);
+            fill(125, 77, 26);
+            triangle(-99,20,-113,18,-113,23);
+
+         break;
+            
+        //}
+        //Crossbow{
+            case 10:
+             fill(122, 64, 2) ;
+             noStroke();
+             rect(0,-2,150,7,5); 
+
+             ellipse(10,1,6,14);
+             ellipse(-13,1,53,11);             
+             ellipse(-36,1,6,12);      
+             fill(255, 255, 255,70);
+             ellipse(-10,3,13,2);    
+            fill(235, 210, 112);
+             rect(20,1,90,1);
+             stroke(143, 143, 143);
+             strokeWeight(8);
+             noFill();
+             arc(143,3,15,50,-72,63);
+             arc(166,37,50,50,162,222);   
+             arc(166,-28,45,50,172,212);   
+            strokeWeight(2);
+            line(141,47,19,2);
+            line(149,-44,19,2);
+            break;
+            
+        //}
+        //the real mini-gun{
+          case 11:
+            noStroke();
+            for(var i = 0;i<11;i++){
+            fill(i*3, i*3, i*3,30);
+            rect(59,11-i/2,140,i);
+            rect(59,17-i/2,140,i);
+            rect(59,23-i/2,140,i);
+            rect(59,29-i/2,140,i);
+            }
+             fill(110, 110, 110) ;
+             rect(53,5,20,40,5);
+             fill(61, 61, 61);
+             rect(0,0,10,25,3);
+             rect(0,0,16,5,3); 
+             fill(122, 122, 122);
+             arc(10,24,20,20,90,180);
+             rect(10,23,20,11);
+             fill(59, 59, 59);
+            rect(28,11,26,23,3);
+            rect(20,9,3,14);
+            rect(20,6,10,3);
+            rect(40,0,3,20);
+            rect(29,0,3,20);
+            rect(30,0,13,3);
+            fill(122, 122, 122,200);
+            rect(81,9,6,23);  
+            rect(123,9,6,23);    
+            rect(176,9,11,23);    
+            break;
+        //}
+    }
+    
+    popMatrix();
+};
+
+
+Guns(52,200,1,0,1);
+Guns(194,200,1,0,2);
+Guns(42,310,1,0,3);
+Guns(130,333,1,-20,4);
+Guns(454,286,1,-100,5);
+Guns(334,345,1,0,6);
+Guns(444,390,1,0,7);
+Guns(396,437,1,0,8);
+Guns(143,380,1,0,9);
+Guns(363,482,0.6,-90,10);
+Guns(94,431,1,0,11);
+
