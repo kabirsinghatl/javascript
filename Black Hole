@@ -1,0 +1,86 @@
+imageMode(CENTER);
+var r = 0;
+
+background(1, 0, 13);
+
+//stars
+stroke(255, 255, 255,180);
+for(var i = 0; i < 140; i++) {
+    strokeWeight(random(1, 4.5));
+    point(random(0, width), random(0, height));
+    
+}
+
+//dark gradient 
+for(var i = 0; i < 34; i++) {
+    noStroke();
+    fill(0, 40);
+    ellipse(width/2, height/2, 18 * i, 18 * i);
+}
+
+var spaceSky = get(0, 0, width, height);
+
+background(0, 0, 0, 0);
+for(var i = 0; i < 21; i++) {
+    strokeWeight(10);
+    stroke(255, 81, 0);
+    noFill();
+    pushMatrix();
+        translate(width/2, height/2);
+        rotate(17*i);
+        arc(32, -19, 168, 246, 169, 249);
+    popMatrix();
+}
+
+arc(width/2-50, height/2-50, 168, 246, 92, 268);
+arc(width/2+77, height/2+28, 168, 246, 255, 414);
+arc(width/2-75, height/2+48, 209, 161, 369, 521);
+
+strokeWeight(14);
+stroke(255, 123, 0);
+arc(width/2-25, height/2-25, 88, 136, 437, 620);
+arc(width/2-27, height/2+46, 204, 207, -61, 46);
+
+filter(BLUR, 11);
+
+var swirls = get(0, 0, width, height);
+
+background(0,0,0,0);
+//glow around black hole
+for(var i = 0; i < 23; i++) {
+    noStroke();
+    fill(255, 60, 0, 4);
+    ellipse(width/2, height/2, 19 * i, 19 * i);
+}
+
+image(swirls, width/2+18, height/2+17);
+
+fill(255, 115, 0);
+ellipse(width/2, height/2+1, 100, 104);
+
+fill(0);
+ellipse(width/2, height/2, 100, 100);
+
+var blackhole = get(0, 0, width, height);
+
+draw = function() {
+    image(spaceSky, width/2, height/2);
+    
+    //the glow/pulse
+    for (var i = 0; i < 33 + sin(frameCount * 1) * 9; i++) {
+        noStroke();
+        fill(255, 98, 0, 2);
+        ellipse(width/2, height/2, 11 * i, 11 * i);
+    }
+    
+    pushMatrix();
+        translate(width/2, height/2);
+        rotate(r);
+        image(blackhole, 0, 0);
+    popMatrix();
+    
+    r-=0.2;
+};
+
+
+
